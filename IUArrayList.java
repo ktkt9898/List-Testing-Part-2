@@ -2,18 +2,18 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-public class ArrayList<T> implements IndexedUnsortedList<T> {
+public class IUArrayList<T> implements IndexedUnsortedList<T> {
     public static final int DEFAULT_CAPACITY = 10;
     private T[] array;
     private int rear;
     private T element;
 
-    public ArrayList() {
+    public IUArrayList() {
         this(DEFAULT_CAPACITY);
     }
 
     @SuppressWarnings("unchecked")
-    public ArrayList(int initialCapacity) {
+    public IUArrayList(int initialCapacity) {
         array = (T[])(new Object[initialCapacity]);
         rear = 0;
     }
