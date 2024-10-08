@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -6,7 +7,6 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
     public static final int DEFAULT_CAPACITY = 10;
     private T[] array;
     private int rear;
-    private T element;
 
     public IUArrayList() {
         this(DEFAULT_CAPACITY);
@@ -18,6 +18,17 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         rear = 0;
     }
 
+    /**
+     * Double array capacity if necessary before adding.
+     */
+    private void expandIfNecessary() {
+        if (array.length == rear) {
+            // Out of room
+            // Use the Array class to copy and overwrite the array now with twice the size
+            array = Arrays.copyOf(array, array.length * 2);
+        }
+    }
+
     @Override
     public void addToFront(T element) {
         // TODO Auto-generated method stub
@@ -26,14 +37,16 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public void addToRear(T element) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addToRear'");
+        expandIfNecessary();
+        // Rear would be the last spot prior to expanding
+        array[rear] = element;
+        // Incremenet rear
+        rear++;
     }
 
     @Override
     public void add(T element) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'add'");
+        addToRear(element);
     }
 
     @Override
@@ -80,18 +93,20 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public T get(int index) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
+        if (index < 0 || index >= rear) {
+            throw new IndexOutOfBoundsException();
+        }
+        return array[index];
     }
 
     @Override
     public int indexOf(T element) {
-        this.element = element;
         int returnIndex = -1;
         int currentIndex = 0;
     
-        while (returnIndex == -1 && currentIndex < rear) {
+        while (returnIndex < 0 && currentIndex < rear) {
             // the '==' operater checks object address
+            // equals() method compares contents
             if (element.equals(array[currentIndex])) {
                 returnIndex = currentIndex;
             }
@@ -121,8 +136,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public boolean contains(T target) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'contains'");
+        return indexOf(target) > -1;
     }
 
     @Override
