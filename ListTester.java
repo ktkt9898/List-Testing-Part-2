@@ -151,27 +151,29 @@ public class ListTester {
 		String STRING_ABC = "ABC";
 
 		//newly constructed empty list
-		testEmptyList(newList, "newList");
+		testEmptyList(newList, "newList"); // Test scenario given to us
 		//empty to 1-element list
-		testSingleElementList(emptyList_addToFrontA_A, "emptyList_addToFrontA_A", LIST_A, STRING_A);
+		testSingleElementList(emptyList_addToFrontA_A, "emptyList_addToFrontA_A", LIST_A, STRING_A); // Test scenario given to us
 		testSingleElementList(emptyList_addToRearA_A, "emptyList_addToRearA_A", LIST_A, STRING_A);
 		testSingleElementList(emptyList_addA_A, "emptyList_addA_A", LIST_A, STRING_A);
 		testSingleElementList(emptyList_add0A_A, "emptyList_add0A_A", LIST_A, STRING_A);
 		//1-element to empty list
 		//1-element to 2-element
-		testTwoElementList(A_addToFrontB_BA, "A_addToFrontB_BA", LIST_BA, STRING_BA);
-		testTwoElementList(A_addToRearB_AB, "A_addToRearB_AB", LIST_AB, STRING_AB);
-		testTwoElementList(A_addAfterBA_AB, "A_addAfterBA_AB", LIST_AB, STRING_AB);
+		testTwoElementList(A_addToFrontB_BA, "A_addToFrontB_BA", LIST_BA, STRING_BA); // Test scenario given to us
+		testTwoElementList(A_addToRearB_AB, "A_addToRearB_AB", LIST_AB, STRING_AB); // 1st test scenario result in 2 element list
+		testTwoElementList(A_addAfterBA_AB, "A_addAfterBA_AB", LIST_AB, STRING_AB); // 2nd test scenario result in 2 element list
+		testTwoElementList(A_add0B_BA, "A_add0B_BA", LIST_BA, STRING_BA); // 3rd test scenario result in 2 element list
+		testTwoElementList(A_add1B_AB, "A_add1B_AB", LIST_AB, STRING_AB); // 4th test scenario result in 2 element list
 		//1-element to changed 1-element via set()
 		//2-element to 1-element
 		//2-element to 3-element
 		testThreeElementList(C_addToRearAB_ABC, "C_addToRearAB_ABC", LIST_ABC, STRING_ABC);
 		//2-element to changed 2-element via set()
 		//3-element to 2-element
-		testTwoElementList(ABC_removeC_AB, "ABC_removeC_AB", LIST_AB, STRING_AB);
-		testTwoElementList(ABC_remove0_BC, "ABC_remove0_BC", LIST_BC, STRING_BC);
-		testTwoElementList(ABC_remove1_AC, "ABC_remove1_AC", LIST_AC, STRING_AC);
-		testTwoElementList(ABC_remove2_AB, "ABC_remove2_AB", LIST_AB, STRING_AB);
+		testTwoElementList(ABC_removeC_AB, "ABC_removeC_AB", LIST_AB, STRING_AB); // 5th test scenario result in 2 element list
+		testTwoElementList(ABC_remove0_BC, "ABC_remove0_BC", LIST_BC, STRING_BC); // 6th test scenario result in 2 element list
+		testTwoElementList(ABC_remove1_AC, "ABC_remove1_AC", LIST_AC, STRING_AC); // 7th test scenario result in 2 element list
+		testTwoElementList(ABC_remove2_AB, "ABC_remove2_AB", LIST_AB, STRING_AB); // 8th test scenario result in 2 element list
 		//3-element to changed 3-element via set()
 		//Iterator concurrency tests
 		test_IterConcurrency();
@@ -232,7 +234,6 @@ public class ListTester {
 		list.addToFront(ELEMENT_A);
 		return list;
 	}
-
 	private Scenario<Integer> emptyList_addToFrontA_A = () -> emptyList_addToFrontA_A();
 
 	/** Scenario: empty list -> addToRear(A) -> [A] 
@@ -243,7 +244,6 @@ public class ListTester {
 		list.addToRear(ELEMENT_A);
 		return list;
 	}
-	
 	private Scenario<Integer> emptyList_addToRearA_A = () -> emptyList_addToRearA_A();
 
 	/** Scenario: empty list -> add(A) -> [A] 
@@ -254,7 +254,6 @@ public class ListTester {
 		list.add(ELEMENT_A);
 		return list;
 	}
-	
 	private Scenario<Integer> emptyList_addA_A = () -> emptyList_addA_A();
 
 	/** Scenario: empty list -> add(0,A) -> [A] 
@@ -265,7 +264,6 @@ public class ListTester {
 		list.add(0, ELEMENT_A);
 		return list;
 	}
-	
 	private Scenario<Integer> emptyList_add0A_A = () -> emptyList_add0A_A();
 
 	/** Scenario: [A] -> addToFront(B) -> [B,A]
@@ -297,6 +295,26 @@ public class ListTester {
 		return list;
 	}
 	private Scenario<Integer> A_addAfterBA_AB = () -> A_addAfterBA_AB();
+
+	/** Scenario: [A] -> add(0,B) -> [B,A]
+	 * @return [B,A] after add(0,B)
+	 */
+	private IndexedUnsortedList<Integer> A_add0B_BA() {
+		IndexedUnsortedList<Integer> list = emptyList_addToFrontA_A(); 
+		list.add(0, ELEMENT_B);
+		return list;
+	}
+	private Scenario<Integer> A_add0B_BA = () -> A_add0B_BA();
+
+	/** Scenario: [A] -> add(1,B) -> [A,B]
+	 * @return [A,B] after add(1,B)
+	 */
+	private IndexedUnsortedList<Integer> A_add1B_AB() {
+		IndexedUnsortedList<Integer> list = emptyList_addToFrontA_A(); 
+		list.add(1, ELEMENT_B);
+		return list;
+	}
+	private Scenario<Integer> A_add1B_AB = () -> A_add1B_AB();
 
 	/** Scenario: [A,B] -> addToRear(C) -> [A,B,C]
 	 * Required to start with a three element list
