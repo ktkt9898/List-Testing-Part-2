@@ -8,10 +8,20 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
     private T[] array;
     private int rear;
 
+    /**
+     * Default constructor that creates an array of size 10, the 
+     * default capacity, to start a list
+     */
     public IUArrayList() {
         this(DEFAULT_CAPACITY);
     }
 
+    /**
+     * Second constructor that can take in a user specified array size to start a list
+     * 
+     * @param initialCapacity An integer value that will serve as the array
+     * size
+     */
     @SuppressWarnings("unchecked")
     public IUArrayList(int initialCapacity) {
         array = (T[])(new Object[initialCapacity]);
@@ -19,20 +29,33 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
     }
 
     /**
-     * Double array capacity if necessary before adding.
+     * Double list capacity if necessary before adding.
      */
     private void expandIfNecessary() {
         if (array.length == rear) {
             // Out of room
-            // Use the Array class to copy and overwrite the array now with twice the size
+            // Use the Array class to copy and overwrite the list now with twice the size
             array = Arrays.copyOf(array, array.length * 2);
         }
     }
 
     @Override
     public void addToFront(T element) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addToFront'");
+        expandIfNecessary();
+        // Shift everything in the list by one index position
+        // Use a for loop since we have a range value known
+        // Index must be greater than 0 since nothing is to the left of 0
+        // This also introduces an O(n) growth factor, where n is the elements in the list.
+        for (int i = rear; i > 0; i--) {
+            // index - 1 is the left value to the current index position
+            array[i] = array[i - 1];
+        }
+        
+        // Now assign the element to the front
+        array[0] = element;
+
+        // Rear now needs to be updated after an add
+        rear++;
     }
 
     @Override
@@ -40,6 +63,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         expandIfNecessary();
         // Rear would be the last spot prior to expanding
         array[rear] = element;
+
         // Incremenet rear
         rear++;
     }
@@ -75,8 +99,38 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public T remove(T element) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'remove'");
+        // Search once for the element at the first occurence
+        // using the already tested indexOf method
+        int index = indexOf(element);
+
+        // Conditional check if not found
+        if ( index < 0) {
+            throw new NoSuchElementException();
+        }
+
+        // Store the return value before trashing it, we need to provide this later
+        // according to the interface javadoc
+        T returnValue = array[index];
+
+        // Cannot start at the back, since it will overwrite values
+        // Start at the first value to be index
+        // Last index would now be rear - 2 (or up to and not including
+        // rear - 1)
+        // From this : [a, b, c, rear]
+        // to now this after removing b: [a, c, , rear]
+        for (int i = index; i < rear - 1; i++) {
+            array[i] = array[i + 1];
+        }
+
+        // Decrement rear since it is out of poisition by one
+        rear--;
+
+        // Now we must prevent a memory leak by removing the reference to the 
+        // element value that was removed by setting to null
+        array[rear] = null;
+
+        // Return the removed value according to the interface javadoc
+        return returnValue;
     }
 
     @Override
