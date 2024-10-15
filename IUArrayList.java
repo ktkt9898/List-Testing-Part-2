@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -7,17 +8,19 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
     public static final int DEFAULT_CAPACITY = 10;
     private T[] array;
     private int rear;
+    // Modification count any time the list gets added or removed
+    private int versionNumber;
 
     /**
      * Default constructor that creates an array of size 10, the 
-     * default capacity, to start a list
+     * default capacity, to start a list.
      */
     public IUArrayList() {
         this(DEFAULT_CAPACITY);
     }
 
     /**
-     * Second constructor that can take in a user specified array size to start a list
+     * Second constructor that can take in a user specified array size to start a list.
      * 
      * @param initialCapacity An integer value that will serve as the array
      * size
@@ -26,11 +29,10 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
     public IUArrayList(int initialCapacity) {
         array = (T[])(new Object[initialCapacity]);
         rear = 0;
+        versionNumber = 0;
     }
 
-    /**
-     * Double list capacity if necessary before adding.
-     */
+    // Double list capacity if necessary before adding.
     private void expandIfNecessary() {
         if (array.length == rear) {
             // Out of room
@@ -56,6 +58,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
         // Rear now needs to be updated after an add
         rear++;
+        versionNumber++;
     }
 
     @Override
@@ -66,6 +69,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
         // Incremenet rear
         rear++;
+        versionNumber++;
     }
 
     @Override
@@ -129,6 +133,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         // element value that was removed by setting to null
         array[rear] = null;
 
+        versionNumber++;
         // Return the removed value according to the interface javadoc
         return returnValue;
     }
@@ -205,8 +210,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public Iterator<T> iterator() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'iterator'");
+        return new ALIterator();
     }
 
     @Override
@@ -221,4 +225,71 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         throw new UnsupportedOperationException("Unimplemented method 'listIterator'");
     }
     
-}
+    /**
+     * Array List Iterator (ALIterator)
+     * A basic iterator for IUArrayList and will include remove().
+     */
+    private class ALIterator implements Iterator<T> {
+        private int nextIndex;
+        private boolean canRemove;
+        private int iterVersionNumber;
+        
+        /**
+         * Initialize the iterator in front of the first element
+         */
+        public ALIterator() {
+            // Beginning of the list is array[0]
+            nextIndex = 0;
+            canRemove = false;
+            // Should be the same number and can now be compared
+            iterVersionNumber = versionNumber;
+        }
+
+        @Override
+        public boolean hasNext() {
+            // If something changed, throw a concurrent modification exception
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+            return nextIndex < rear;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            canRemove = true;
+            nextIndex++;
+            // Instead of storing the variable, we can retrieve the current position behind
+            return array[nextIndex - 1];
+        }
+        
+        @Override
+        public void remove() {
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+
+            if (!canRemove) {
+                throw new IllegalStateException();
+            }
+            canRemove = false;
+
+            for (int i = nextIndex - 1; i < rear - 1; i++) {
+                // Pull the value to its right
+                array[i] = array[i + 1];
+            }
+            // Same process as the arraylist remove method
+            array[rear - 1] = null;
+            rear--;
+
+            // Position the next index by decrementing by one
+            nextIndex--;
+
+            // Increment the version number for this specific iterator object
+            versionNumber++;
+            iterVersionNumber++;
+        }
+    } // End of ALIterator class
+} // End of IUArrayList class
