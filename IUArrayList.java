@@ -32,7 +32,9 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         versionNumber = 0;
     }
 
-    // Double list capacity if necessary before adding.
+    /**
+     * Double list capacity if necessary before adding.
+     */
     private void expandIfNecessary() {
         if (array.length == rear) {
             // Out of room
@@ -91,14 +93,26 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public T removeFirst() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'removeFirst'");
+        T returnValue = array[0];
+
+        for (int i = 0; i < array.length - 1; i++) {
+            array[i] = array[i + 1];
+        }
+
+        rear--;
+        versionNumber++;
+        return returnValue;
     }
 
     @Override
     public T removeLast() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'removeLast'");
+        T returnValue = array[rear - 1];
+        
+        // Replace rear - 1, the last value to null
+        array[rear - 1] = null;
+        rear--;
+        versionNumber++;
+        return returnValue;    
     }
 
     @Override
