@@ -81,20 +81,51 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public void addAfter(T element, T target) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addAfter'");
+        int targetIndex = indexOf(target);
+
+        // Necessary to check since indexOf does not throw an exceptio.
+        if (targetIndex < 0 || targetIndex >= rear) {
+            throw new NoSuchElementException();
+        }
+        expandIfNecessary();
+
+        // Shift everything at the target value to the right by one to free up space
+        for (int i = targetIndex; i < rear; i++) {
+            array[i] = array[i + 1];
+        }
+        rear++;
+        // Now add the element
+        array[targetIndex] = element;
+        versionNumber++;
     }
 
     @Override
     public void add(int index, T element) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'add'");
+        if (indexOf(element) == -1) {
+            throw new IndexOutOfBoundsException();
+        }
+        expandIfNecessary();
+
+        // Start at rear because if [a, b, c, rear]
+        // and we want to add at index 1, which is be we would need
+        // [a, empty, b, c]
+        for (int i = rear; i > index; i--) {
+            array[i] = array[i - 1];
+        }
+
+        array[index] = element;
+        rear++;
+        versionNumber++;
     }
 
     @Override
     public T removeFirst() {
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
         T returnValue = array[0];
 
+        // array.lenght - 1 exludes rear
         for (int i = 0; i < array.length - 1; i++) {
             array[i] = array[i + 1];
         }
@@ -106,6 +137,9 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public T removeLast() {
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
         T returnValue = array[rear - 1];
         
         // Replace rear - 1, the last value to null
@@ -154,14 +188,33 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public T remove(int index) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'remove'");
+        if (index < 0 || index >= rear) {
+            throw new IndexOutOfBoundsException();
+        }
+        T returnValue = array[index];
+        // Now remove the value by overwriting to null
+        array[index] = null;
+        rear--;
+
+        // If [a, b, c, rear] is the scenario and we remove
+        // at index 1, or b, it becomes [a, null, c, rear]
+        // then index + 1 is now 2, or c, and that overwrites index 1, where b used to be
+        // then goes up to but not including rear and ends the loop
+        for (int i = index; i < rear; i++) {
+            array[i] = array[i + 1];
+        }
+
+        versionNumber++;
+        return returnValue;
     }
 
     @Override
     public void set(int index, T element) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        // Check if element is valid first
+        if (indexOf(element) == -1) {
+            throw new IndexOutOfBoundsException();
+        }
+        array[index] = element;
     }
 
     @Override
@@ -214,12 +267,25 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public boolean isEmpty() {
+        // Shorthand for saying if rear is 0 then return true
         return rear == 0;
     }
 
     @Override
     public int size() {
         return rear;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("[");
+
+        for (T values : array) {
+            if ((int)values != array.length) {
+                
+            }
+        }
     }
 
     @Override
