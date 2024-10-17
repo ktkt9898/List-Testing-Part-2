@@ -214,6 +214,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
             throw new IndexOutOfBoundsException();
         }
         array[index] = element;
+        versionNumber++;
     }
 
     @Override
