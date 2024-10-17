@@ -83,7 +83,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
     public void addAfter(T element, T target) {
         int targetIndex = indexOf(target);
 
-        // Necessary to check since indexOf does not throw an exceptio.
+        // Necessary to check since indexOf does not throw an exception.
         if (targetIndex < 0 || targetIndex >= rear) {
             throw new NoSuchElementException();
         }
@@ -101,7 +101,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public void add(int index, T element) {
-        if (indexOf(element) == -1) {
+        if (index < 0 || index > rear) {
             throw new IndexOutOfBoundsException();
         }
         expandIfNecessary();
@@ -197,7 +197,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         rear--;
 
         // If [a, b, c, rear] is the scenario and we remove
-        // at index 1, or b, it becomes [a, null, c, rear]
+        // at index 1, or b, it becomes [a, null, c/rear]
         // then index + 1 is now 2, or c, and that overwrites index 1, where b used to be
         // then goes up to but not including rear and ends the loop
         for (int i = index; i < rear; i++) {
@@ -211,7 +211,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
     @Override
     public void set(int index, T element) {
         // Check if element is valid first
-        if (indexOf(element) == -1) {
+        if (index < 0 || index >= rear) {
             throw new IndexOutOfBoundsException();
         }
         array[index] = element;
@@ -281,11 +281,18 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("[");
 
-        for (T values : array) {
-            if ((int)values != array.length) {
-                
-            }
+        for (T element : this) {
+            stringBuilder.append(element.toString());
+            stringBuilder.append(", ");
         }
+
+        if (size() > 0) {
+            // Remove trailing comma
+            stringBuilder.delete(stringBuilder.length() - 2, stringBuilder.length());
+        }
+
+        stringBuilder.append("]");
+        return stringBuilder.toString();
     }
 
     @Override
