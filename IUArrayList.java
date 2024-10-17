@@ -90,12 +90,12 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         expandIfNecessary();
 
         // Shift everything at the target value to the right by one to free up space
-        for (int i = targetIndex; i < rear; i++) {
-            array[i] = array[i + 1];
+        for (int i = rear; i > targetIndex; i--) {
+            array[i] = array[i - 1];
         }
         rear++;
         // Now add the element
-        array[targetIndex] = element;
+        array[targetIndex + 1] = element;
         versionNumber++;
     }
 
@@ -146,7 +146,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         array[rear - 1] = null;
         rear--;
         versionNumber++;
-        return returnValue;    
+        return returnValue;
     }
 
     @Override
@@ -193,8 +193,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         }
         T returnValue = array[index];
         // Now remove the value by overwriting to null
-        array[index] = null;
-        rear--;
+        
 
         // If [a, b, c, rear] is the scenario and we remove
         // at index 1, or b, it becomes [a, null, c/rear]
@@ -203,7 +202,8 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         for (int i = index; i < rear; i++) {
             array[i] = array[i + 1];
         }
-
+        rear--;
+        array[rear] = null;
         versionNumber++;
         return returnValue;
     }
@@ -346,8 +346,8 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            canRemove = true;
             nextIndex++;
+            canRemove = true;
             // Instead of storing the variable, we can retrieve the current position behind
             return array[nextIndex - 1];
         }
