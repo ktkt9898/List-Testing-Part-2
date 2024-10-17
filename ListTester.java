@@ -164,28 +164,29 @@ public class ListTester {
 		testSingleElementList(emptyList_add0A_A, "emptyList_add0A_A", LIST_A, STRING_A); // 3
 		// [B]
 		testSingleElementList(emptyList_addToFrontB_B, "emptyList_addToFrontB_B", LIST_B, STRING_B); // 4
+		testSingleElementList(A_set0B_B, "A_set0B_B", LIST_B, STRING_B); // 5
 		// [C]
-		testSingleElementList(emptyList_addToFrontC_C, "emptyList_addToFrontC_C", LIST_C, STRING_C); // 5
+		testSingleElementList(emptyList_addToFrontC_C, "emptyList_addToFrontC_C", LIST_C, STRING_C); // 6
 		//1-element to empty list
 		testEmptyList(A_IterRemoveA_empty, "A_IterRemoveA_empty"); // Iterator empty element list
 		//1-element to 2-element
 		testTwoElementList(A_addToFrontB_BA, "A_addToFrontB_BA", LIST_BA, STRING_BA); // Test scenario given to us
-		testTwoElementList(A_addToRearB_AB, "A_addToRearB_AB", LIST_AB, STRING_AB); // 6
-		testTwoElementList(A_addAfterBA_AB, "A_addAfterBA_AB", LIST_AB, STRING_AB); // 7
-		testTwoElementList(A_add0B_BA, "A_add0B_BA", LIST_BA, STRING_BA); // 8
-		testTwoElementList(A_add1B_AB, "A_add1B_AB", LIST_AB, STRING_AB); // 9
+		testTwoElementList(A_addToRearB_AB, "A_addToRearB_AB", LIST_AB, STRING_AB); // 7
+		testTwoElementList(A_addAfterBA_AB, "A_addAfterBA_AB", LIST_AB, STRING_AB); // 8
+		testTwoElementList(A_add0B_BA, "A_add0B_BA", LIST_BA, STRING_BA); // 9
+		testTwoElementList(A_add1B_AB, "A_add1B_AB", LIST_AB, STRING_AB); // 10
 		//1-element to changed 1-element via set()
 		//2-element to 1-element
 		testSingleElementList(AB_IterRemoveA_B, "AB_IterRemoveA_B", LIST_B, STRING_B); // Iterator 1 element list
 		testSingleElementList(AB_IterRemoveB_A, "AB_IterRemoveB_A", LIST_A, STRING_A); // Iterator 1 element list
 		//2-element to 3-element
-		testThreeElementList(AB_addToRearC_ABC, "AB_addToRearC_ABC", LIST_ABC, STRING_ABC); // 10
+		testThreeElementList(AB_addToRearC_ABC, "AB_addToRearC_ABC", LIST_ABC, STRING_ABC); // 11
 		//2-element to changed 2-element via set()
 		//3-element to 2-element
-		testTwoElementList(ABC_removeC_AB, "ABC_removeC_AB", LIST_AB, STRING_AB); // 11
-		testTwoElementList(ABC_remove0_BC, "ABC_remove0_BC", LIST_BC, STRING_BC); // 12
-		testTwoElementList(ABC_remove1_AC, "ABC_remove1_AC", LIST_AC, STRING_AC); // 13
-		testTwoElementList(ABC_remove2_AB, "ABC_remove2_AB", LIST_AB, STRING_AB); // 14
+		testTwoElementList(ABC_removeC_AB, "ABC_removeC_AB", LIST_AB, STRING_AB); // 12
+		testTwoElementList(ABC_remove0_BC, "ABC_remove0_BC", LIST_BC, STRING_BC); // 13
+		testTwoElementList(ABC_remove1_AC, "ABC_remove1_AC", LIST_AC, STRING_AC); // 14
+		testTwoElementList(ABC_remove2_AB, "ABC_remove2_AB", LIST_AB, STRING_AB); // 15
 		testTwoElementList(ABC_IterRemoveA_BC, "ABC_IterRemoveA_BC", LIST_BC, STRING_BC); // Iterator 2 element list
 		testTwoElementList(ABC_IterRemoveB_AC, "ABC_IterRemoveB_AC", LIST_AC, STRING_AC); // Iterator 2 element list
 		testTwoElementList(ABC_IterRemoveC_AB, "ABC_IterRemoveC_AB", LIST_AB, STRING_AB); // Iterator 2 element list
@@ -350,6 +351,16 @@ public class ListTester {
 		return list;
 	}
 	private Scenario<Integer> A_add1B_AB = () -> A_add1B_AB();
+
+	/** Scenario: [A] -> set(0,B) -> [B]
+	 * @return [B] after set(0,B)
+	 */
+	private IndexedUnsortedList<Integer> A_set0B_B() {
+		IndexedUnsortedList<Integer> list = emptyList_addToFrontA_A(); 
+		list.set(0, ELEMENT_B);
+		return list;
+	}
+	private Scenario<Integer> A_set0B_B = () -> A_set0B_B();
 
 	/** Scenario: [A,B] -> addToRear(C) -> [A,B,C]
 	 * Required to start with a three element list
