@@ -94,6 +94,7 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
             array[i] = array[i - 1];
         }
         rear++;
+
         // Now add the element
         array[targetIndex + 1] = element;
         versionNumber++;
@@ -112,7 +113,6 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         for (int i = rear; i > index; i--) {
             array[i] = array[i - 1];
         }
-
         array[index] = element;
         rear++;
         versionNumber++;
@@ -129,7 +129,6 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         for (int i = 0; i < array.length - 1; i++) {
             array[i] = array[i + 1];
         }
-
         rear--;
         versionNumber++;
         return returnValue;
@@ -180,8 +179,8 @@ public class IUArrayList<T> implements IndexedUnsortedList<T> {
         // Now we must prevent a memory leak by removing the reference to the 
         // element value that was removed by setting to null
         array[rear] = null;
-
         versionNumber++;
+        
         // Return the removed value according to the interface javadoc
         return returnValue;
     }
