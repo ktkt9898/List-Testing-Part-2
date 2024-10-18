@@ -704,6 +704,11 @@ public class ListTester {
 			printTest(scenarioName + "_iterNextRemove2_testIterHasNext", testIterHasNext(iterAfterRemove(iterAfterNext(scenario.build(), 2)), Result.False));
 			printTest(scenarioName + "_iterNextRemove2_testIterNext", testIterNext(iterAfterRemove(iterAfterNext(scenario.build(), 2)), null, Result.NoSuchElement));
 			printTest(scenarioName + "_iterNextRemove2_testIterRemove", testIterRemove(iterAfterRemove(iterAfterNext(scenario.build(), 2)), Result.IllegalState));
+
+			// Helper tests for the iterator
+			printTest(scenarioName + "_iterNextRemoveNext_testIterHasNext", testIterHasNext(iterAfterNext(iterAfterRemove(iterAfterNext(scenario.build(), 1)), 1), Result.False));
+			printTest(scenarioName + "_iterNextRemoveNext_testIterNext", testIterNext(iterAfterNext(iterAfterRemove(iterAfterNext(scenario.build(), 1)), 1), null, Result.NoSuchElement));
+			printTest(scenarioName + "_iterNextRemoveNext_testIterRemove", testIterRemove(iterAfterNext(iterAfterRemove(iterAfterNext(scenario.build(), 1)), 1), Result.NoException));
 			// ListIterator
 			if (SUPPORTS_LIST_ITERATOR) {
 				//TODO: will add for double-linked list
@@ -1377,6 +1382,19 @@ public class ListTester {
 		}
 		return it;
 	}
+
+	/** Helper for testing iterators. Return an Iterator that has been advanced numCallsToNext times.
+	* @param iterator
+	* @param numCallsToNext
+	* @return Iterator for given list, after numCallsToNext
+	*/
+   private Iterator<Integer> iterAfterNext(Iterator<Integer> iterator, int numCallsToNext) {
+	   Iterator<Integer> it = iterator;
+	   for (int i = 0; i < numCallsToNext; i++) {
+		   it.next();
+	   }
+	   return it;
+   }
 
 	/** Helper for testing iterators. Return an Iterator that has had remove() called once.
 	 * @param iterator
