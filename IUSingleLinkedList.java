@@ -152,8 +152,7 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public boolean contains(T target) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'contains'");
+        return indexOf(target) > -1;
     }
 
     @Override
