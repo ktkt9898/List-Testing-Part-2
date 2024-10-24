@@ -14,7 +14,7 @@ public class Node<T> {
     public Node(T element) {
         // Nodes are always a placeholder for an element.
         this.element = element;
-        nextNode = null;
+        this.nextNode = null;
     }
 
     /**
