@@ -226,6 +226,8 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
             }
 
             currentNode.setNextNode(null);
+            // Update tail
+            tail = currentNode;
         }
 
         size--;
