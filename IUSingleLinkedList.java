@@ -93,51 +93,49 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public void addAfter(T element, T target) {
-        Node<T> currentNode = head;
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
+
         boolean found = false;
+        Node<T> previousNode = null;
+        Node<T> previousTailNode = null;
+        Node<T> startNode = head;
+        Node<T> next = new Node<T>(element);
+        Node<T> newNode = new Node<T>(element);
 
-        // For the beginning
-        while (target != currentNode.getElement() && currentNode.getNextNode() != null) {
-            currentNode = currentNode.getNextNode();
+        while (startNode != null && !found) {
+            if (target.equals(startNode.getElement())) {
+                found = true;
+            }
+            else {
+                previousNode = startNode;
+                startNode = startNode.getNextNode();
+            }
         }
 
-        // for (int i = 0; i < size; i++) {
-        // if (currentNode == currentNode.getElement()) {
-        // found = true;
-        // break;
-        // }
-        // else {
-        // currentNode = currentNode.getNextNode();
-        // }
-        // }
-
-        // If target was not found
-        // if (!found) {
-        // throw new NoSuchElementException();
-        // }
-
-        // if (currentNode == null) {
-        // throw new NoSuchElementException();
-        // }
-
-        if (currentNode == tail) {
-            add(element);
-        } else {
-            // Temp storage, the node after the target, which must be stored to later
-            // reintegrate into the linked list.
-            Node<T> tempNode = currentNode.getNextNode();
-
-            // Create a new node to be added
-            Node<T> newNode = new Node<T>(element);
-
-            currentNode.setNextNode(newNode);
-
-            // Now set the nextNode after X, back to C.
-            newNode.setNextNode(tempNode);
-
-            size++;
-            versionNumber++;
+        if (!found) {
+            throw new NoSuchElementException();
         }
+        else {
+            // If the target is the tail, size - 1
+            if (indexOf(target) == size - 1) {
+                // Start value at the head
+                previousTailNode = head;
+                newNode.setElement(element);
+                for (int i = 0; i < size - 1; i++) {
+                    previousTailNode = previousTailNode.getNextNode();
+                }
+                previousTailNode.setNextNode(newNode);
+                tail = newNode;
+            }
+            else {
+                startNode.setNextNode(next);
+            }
+        }
+
+        size++;
+        versionNumber++;
     }
 
     @Override
@@ -194,14 +192,16 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public T removeFirst() {
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
         // Overwrite the head to the next node
-        Node<T> nextHead = head.getNextNode();
-        T returnValue = head.getElement();
-        head = nextHead;
+        Node<T> returnValue = head;
+        head = returnValue.getNextNode();
 
         size--;
         versionNumber++;
-        return returnValue;
+        return returnValue.getElement();
     }
 
     @Override
@@ -220,14 +220,15 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
             tail = null;
 
         } else {
-            // Iterate up to the the node before tail.
-            while (currentNode.getNextNode() != tail && head != tail) {
+            Node<T> startNode = null;
+            // Size is less than one because we will eventually remove the head and shift down by
+            // one
+            for (int i = 0; i < size - 1; i++) {
+                startNode = currentNode;
                 currentNode = currentNode.getNextNode();
             }
-
-            currentNode.setNextNode(null);
-            // Update tail
-            tail = currentNode;
+            tail = startNode;
+            tail.setNextNode(null);
         }
 
         size--;
