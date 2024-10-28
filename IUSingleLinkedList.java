@@ -97,40 +97,28 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
             throw new NoSuchElementException();
         }
 
-        boolean found = false;
-        Node<T> previousNode = null;
-        Node<T> previousTailNode = null;
-        Node<T> startNode = head;
-        Node<T> next = new Node<T>(element);
+        Node<T> targetNode = head;
         Node<T> newNode = new Node<T>(element);
 
-        while (startNode != null && !found) {
-            if (target.equals(startNode.getElement())) {
-                found = true;
-            }
-            else {
-                previousNode = startNode;
-                startNode = startNode.getNextNode();
-            }
+        // Add a new node at the beginning head.
+        if (size == 1) {
+            head.setNextNode(newNode);
         }
 
-        if (!found) {
-            throw new NoSuchElementException();
-        }
         else {
-            // If the target is the tail, size - 1
-            if (indexOf(target) == size - 1) {
-                // Start value at the head
-                previousTailNode = head;
-                newNode.setElement(element);
-                for (int i = 0; i < size - 1; i++) {
-                    previousTailNode = previousTailNode.getNextNode();
-                }
-                previousTailNode.setNextNode(newNode);
-                tail = newNode;
+            while (targetNode != null && !targetNode.getElement().equals(target)) {
+                targetNode = targetNode.getNextNode();
             }
-            else {
-                startNode.setNextNode(next);
+            // Add a new node in the middle
+            if (targetNode == null) {
+                throw new NoSuchElementException();
+            }
+
+            newNode.setNextNode(targetNode.getNextNode());
+            newNode.setElement(element);
+
+            if (targetNode == tail) {
+                tail = targetNode;
             }
         }
 
@@ -299,8 +287,39 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public T remove(int index) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'remove'");
+        if (index > size || index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        
+        Node<T> currentNode = head;
+
+        // Assign return value to be null at the start.
+        T returnValue = null;
+
+        if (size == 1) {
+            returnValue = head.getElement();
+            head = null;
+            tail = null;
+        }
+        else {
+            for (int i = 0; i < index - 1; i++) {
+                currentNode = currentNode.getNextNode();
+            }
+            // [1, 2, 3, 4, null] and we want to remove 3, at index 2.
+            // We need the number 2 node to point to number 4. If nothing points to node
+            // 3, then the java garbage collector will automatically remove it.
+            // Return value is 3.
+            returnValue = currentNode.getNextNode().getElement();
+            Node<T> nodeAtEnd = currentNode.getNextNode().getNextNode();
+            currentNode.setNextNode(nodeAtEnd);
+
+            if (nodeAtEnd == null) {
+                tail = nodeAtEnd;
+            }
+        }
+        size--;
+        versionNumber++;
+        return returnValue;
     }
 
     @Override
@@ -325,8 +344,21 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public T get(int index) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
+        // Start at the head.
+        Node<T> currentNode = head;
+
+        if (index > size) {
+            throw new IndexOutOfBoundsException();
+        }
+        else {
+            for (int i = 0; i < index - 1; i++) {
+                // Incremenet up to the input index - 1, to avoid retrieving null.
+                currentNode = currentNode.getNextNode();
+            }
+        }
+
+        // Return the element value at the index that was parsed thru in the for loop.
+        return currentNode.getElement();
     }
 
     @Override
