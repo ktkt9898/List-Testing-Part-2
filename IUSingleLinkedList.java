@@ -1,6 +1,7 @@
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.ConcurrentModificationException;
 
 /**
  * Single-Linked node-based structure implemenetation of the index unsorted list
@@ -314,7 +315,7 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
             currentNode.setNextNode(nodeAtEnd);
 
             if (nodeAtEnd == null) {
-                tail = nodeAtEnd;
+                tail = currentNode;
             }
         }
         size--;
@@ -472,8 +473,7 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public Iterator<T> iterator() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'iterator'");
+        return new SLLIterator(); // Basic iterator, not to be confused with listIterator (for double linked lists)
     }
 
     @Override
@@ -488,4 +488,94 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
         throw new UnsupportedOperationException("Unimplemented method 'listIterator'");
     }
 
-}
+    /**
+     * Iterator class to use within IUSingleLinkedList, to avoid breaking encapsulation.
+     * Do not need to include a generic <T> in the private class. This would create a shadow generic.
+     */
+    private class SLLIterator implements Iterator<T> {
+        private Node<T> nextNode;
+        private boolean canRemove;
+        private int iterVersionNumber;
+
+        /**
+         * Constructor to initialize the Iterator
+         */
+        public SLLIterator() {
+            // Very first "next" is the head
+            nextNode = head;
+            canRemove = false;
+            iterVersionNumber = versionNumber;
+        }
+
+        @Override
+        public boolean hasNext() {
+            // If something has changed, throw a concurrent mod exception.
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+
+            // Return true if the nextNode is not null.
+            return nextNode != null;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            T returnValue = nextNode.getElement();
+            nextNode = nextNode.getNextNode();
+            canRemove = true;
+            return returnValue;
+        }
+
+        @Override
+        public void remove() {
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+
+            if (!canRemove) { // Ensure the method call is valid, from next() switching to true.
+                throw new IllegalStateException();
+            }
+            canRemove = false;
+            // Declare outside to refractor and avoid code duplication for the if checks.
+            Node<T> prevPrevNode = null;
+            
+            // Scenario where we remove at the head in a normal sized list
+            // Simply point to the next node and let the java garbage collector remove the original head.
+            if (head.getNextNode() == nextNode) {
+                head = nextNode;
+            }
+
+            else {
+                // Normal scenario to remove in the middle of the linked list.
+                // If we want to remove C from [A, B, C, D] we must locate the node before since we have to think using
+                // getNextNode twice, which would be A.
+                prevPrevNode = head;
+
+                // As long as advancing twice does NOT reference C, keep searching.
+                // In the exampple, this while loop would retrieve B after execution.
+                while (prevPrevNode.getNextNode().getNextNode() != nextNode) {
+                    prevPrevNode = prevPrevNode.getNextNode();
+                }
+
+                // To remove C, we must set B to point to D.
+                // Set prevPrevNode to the nextNode of C, which is D.
+                prevPrevNode.setNextNode(nextNode);
+            }
+
+            // Now handle the case where the nextNode is null, which the tail needs to be updated.
+            // Also avoids code duplication.
+            if (nextNode == null) {
+                tail = prevPrevNode;
+            }
+
+            versionNumber++;
+            iterVersionNumber++;
+            size--;
+        }
+
+    } // End of Iterator class
+} // End of IUSingleLinkedList class
