@@ -94,28 +94,28 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
 
     @Override
 	public void addAfter(T element, T target) {
+		Node<T> currentNode = head;
 
-		Node<T> current = head;
-
-		while (current != null && !current.getElement().equals(target)) {
-			current = current.getNextNode();
+        // Go 1 up before reaching the target node
+		while (currentNode != null && !currentNode.getElement().equals(target)) {
+			currentNode = currentNode.getNextNode();
 		}
 
-		if (current == null) {
+		if (currentNode == null) {
 			throw new NoSuchElementException();
 		}
 
 		Node<T> newNode = new Node<T>(element);
-		newNode.setNextNode(current.getNextNode());
-		current.setNextNode(newNode);
+		newNode.setNextNode(currentNode.getNextNode());
+		currentNode.setNextNode(newNode);
 
-		if (newNode.getNextNode() == null) { // puts tail in the right place
+        // If the next node is null, or at the end of the list, set this to the tail
+		if (newNode.getNextNode() == null) {
 			tail = newNode;
 		}
 
 		size++;
 		versionNumber++;
-
 	}
 
     @Override
@@ -295,31 +295,38 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
 		if (index < 0 || index >= size) {
 			throw new IndexOutOfBoundsException();
 		}
-		T retVal;
+
+		T returnValue;
 
 		if (index == 0) { // first node
-			retVal = removeFirst();
-		} else { // somewhere in the middle
-			Node<T> current = head;
-			Node<T> previous = null;
+			returnValue = removeFirst();
 
+		} else { // somewhere in the middle
+			Node<T> currentNode = head;
+			Node<T> previousNode = null;
+
+            // [A, B, C, D] and we want to remove at 2, which is index C.
+            // Go up to index 2 but not including, which is 1 at node B.
+            // Then call nextNode to get node C, which will be used to retrieve the element.
+            // Previous node is stored as B.
+            // Go up to the index but not including.
+            // Then, call getNextNode to get the actual index.
 			for (int i = 0; i < index; i++) {
-				previous = current;
-				current = current.getNextNode();
+				previousNode = currentNode;
+				currentNode = currentNode.getNextNode();
 			}
 
-			retVal = current.getElement();
+			returnValue = currentNode.getElement();
 
-			previous.setNextNode(current.getNextNode());
-			if (current.getNextNode() == null) { // puts the tail in place
-				tail = previous;
+            // Now set B to point to D.
+			previousNode.setNextNode(currentNode.getNextNode());
+			if (currentNode.getNextNode() == null) { // puts the tail in place
+				tail = previousNode;
 			}
 			size--;
 			versionNumber++;
 		}
-
-		return retVal;
-
+		return returnValue;
 	}
 
     @Override
@@ -328,13 +335,15 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
 			throw new IndexOutOfBoundsException();
 		}
 
-		Node<T> current = head;
+		Node<T> currentNode = head;
 
+        // Go up to index but not including.
+        // Then, when getNextNode is called, we will be at the actual index.
 		for (int i = 0; i < index; i++) {
-			current = current.getNextNode();
+			currentNode = currentNode.getNextNode();
 		}
 
-		current.setElement(element);
+		currentNode.setElement(element);
 
 		versionNumber++;
 	}
@@ -344,16 +353,19 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
 		if (index < 0 || index >= size) {
 			throw new IndexOutOfBoundsException();
 		}
+
 		T returnVal;
+
 		if (index == 0) { // first node
 			returnVal = head.getElement();
+
 		} else { // somewhere in the middle
-			Node<T> current = head;
+			Node<T> currentNode = head;
 			for (int i = 0; i < index; i++) {
-				current = current.getNextNode();
+				currentNode = currentNode.getNextNode();
 			}
 
-			returnVal = current.getElement();
+			returnVal = currentNode.getElement();
 
 		}
 		return returnVal;
