@@ -101,6 +101,7 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
             currentNode = currentNode.getNextNode();
         }
 
+        // If no target value was found.
         if (currentNode == null) {
             throw new NoSuchElementException();
         }
