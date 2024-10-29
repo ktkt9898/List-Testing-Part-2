@@ -47,6 +47,9 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
         Node<T> newNode = new Node<T>(element);
         newNode.setNextNode(head);
 
+        // Assigning the head to become the new newNode object
+        head = newNode;
+
         // In the event the the linked list is empty we must assign the tail to also be
         // the newNode.
         // Since the isEmpty method checks size, we can use the method again without
@@ -54,9 +57,6 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
         if (isEmpty()) {
             tail = newNode;
         }
-
-        // Assigning the head to become the new newNode object
-        head = newNode;
 
         size++;
         versionNumber++;
@@ -93,39 +93,30 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
     }
 
     @Override
-    public void addAfter(T element, T target) {
-        if (isEmpty()) {
-            throw new NoSuchElementException();
-        }
+	public void addAfter(T element, T target) {
 
-        Node<T> targetNode = head;
-        Node<T> newNode = new Node<T>(element);
+		Node<T> current = head;
 
-        // Add a new node at the beginning head.
-        if (size == 1) {
-            head.setNextNode(newNode);
-        }
+		while (current != null && !current.getElement().equals(target)) {
+			current = current.getNextNode();
+		}
 
-        else {
-            while (targetNode != null && !targetNode.getElement().equals(target)) {
-                targetNode = targetNode.getNextNode();
-            }
-            // Add a new node in the middle
-            if (targetNode == null) {
-                throw new NoSuchElementException();
-            }
+		if (current == null) {
+			throw new NoSuchElementException();
+		}
 
-            newNode.setNextNode(targetNode.getNextNode());
-            newNode.setElement(element);
+		Node<T> newNode = new Node<T>(element);
+		newNode.setNextNode(current.getNextNode());
+		current.setNextNode(newNode);
 
-            if (targetNode == tail) {
-                tail = targetNode;
-            }
-        }
+		if (newNode.getNextNode() == null) { // puts tail in the right place
+			tail = newNode;
+		}
 
-        size++;
-        versionNumber++;
-    }
+		size++;
+		versionNumber++;
+
+	}
 
     @Override
     public void add(int index, T element) {
@@ -173,9 +164,9 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
             if (newNode.getNextNode() == null) {
                 tail = newNode;
             }
+            size++;
         }
-
-        size++;
+        
         versionNumber++;
     }
 
@@ -184,13 +175,24 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
         if (isEmpty()) {
             throw new NoSuchElementException();
         }
+
+        T returnValue;
+        returnValue = head.getElement();
+
+        if (size == 1) {
+            head = null;
+            tail = null;
+        }
+        else {
         // Overwrite the head to the next node
-        Node<T> returnValue = head;
-        head = returnValue.getNextNode();
+        // If [A, B, C] remove A, then point to B as the new head.
+            Node<T> currentNode = head;
+            head = currentNode.getNextNode();
+        }
 
         size--;
         versionNumber++;
-        return returnValue.getElement();
+        return returnValue;
     }
 
     @Override
@@ -200,24 +202,26 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
             throw new NoSuchElementException();
         }
 
-        T returnValue = tail.getElement();
-        Node<T> currentNode = head;
+        T returnValue;
 
         // If a one element list
-        if (size == 1) {
+        if (size() == 1) {
+            returnValue = head.getElement();
             head = null;
             tail = null;
 
         } else {
-            Node<T> startNode = null;
+            Node<T> current = head;
             // Size is less than one because we will eventually remove the head and shift down by
             // one
-            for (int i = 0; i < size - 1; i++) {
-                startNode = currentNode;
-                currentNode = currentNode.getNextNode();
+            // [A, B, C] we want to remove C the last element, size is 3
+            // Go up to size - 2, which is 1
+            for (int i = 0; i < size - 2; i++) {
+                current = current.getNextNode();
             }
-            tail = startNode;
-            tail.setNextNode(null);
+            returnValue = tail.getElement();
+            current.setNextNode(null);
+            tail = current;
         }
 
         size--;
@@ -288,79 +292,73 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public T remove(int index) {
-        if (index > size || index < 0) {
-            throw new IndexOutOfBoundsException();
-        }
-        
-        Node<T> currentNode = head;
+		if (index < 0 || index >= size) {
+			throw new IndexOutOfBoundsException();
+		}
+		T retVal;
 
-        // Assign return value to be null at the start.
-        T returnValue = null;
+		if (index == 0) { // first node
+			retVal = removeFirst();
+		} else { // somewhere in the middle
+			Node<T> current = head;
+			Node<T> previous = null;
 
-        if (size == 1) {
-            returnValue = head.getElement();
-            head = null;
-            tail = null;
-        }
-        else {
-            for (int i = 0; i < index - 1; i++) {
-                currentNode = currentNode.getNextNode();
-            }
-            // [1, 2, 3, 4, null] and we want to remove 3, at index 2.
-            // We need the number 2 node to point to number 4. If nothing points to node
-            // 3, then the java garbage collector will automatically remove it.
-            // Return value is 3.
-            returnValue = currentNode.getNextNode().getElement();
-            Node<T> nodeAtEnd = currentNode.getNextNode().getNextNode();
-            currentNode.setNextNode(nodeAtEnd);
+			for (int i = 0; i < index; i++) {
+				previous = current;
+				current = current.getNextNode();
+			}
 
-            if (nodeAtEnd == null) {
-                tail = currentNode;
-            }
-        }
-        size--;
-        versionNumber++;
-        return returnValue;
-    }
+			retVal = current.getElement();
+
+			previous.setNextNode(current.getNextNode());
+			if (current.getNextNode() == null) { // puts the tail in place
+				tail = previous;
+			}
+			size--;
+			versionNumber++;
+		}
+
+		return retVal;
+
+	}
 
     @Override
-    public void set(int index, T element) {
-        Node<T> currentNode = head;
+	public void set(int index, T element) {
+		if (index < 0 || index >= size) {
+			throw new IndexOutOfBoundsException();
+		}
 
-        if (index > size) {
-            throw new IndexOutOfBoundsException();
-        }
-        else {
-            for (int i = 0; i < index - 1; i++) {
-                currentNode = currentNode.getNextNode();
-            }
-            Node<T> tempNode = currentNode.getNextNode();
-            Node<T> newNode = new Node<T>(element);
-            currentNode.setNextNode(newNode);
-            newNode.setNextNode(tempNode);
-        }
-        
-        versionNumber++;
-    }
+		Node<T> current = head;
+
+		for (int i = 0; i < index; i++) {
+			current = current.getNextNode();
+		}
+
+		current.setElement(element);
+
+		versionNumber++;
+	}
 
     @Override
-    public T get(int index) {
-        // Start at the head.
-        Node<T> currentNode = head;
+	public T get(int index) {
+		if (index < 0 || index >= size) {
+			throw new IndexOutOfBoundsException();
+		}
+		T returnVal;
+		if (index == 0) { // first node
+			returnVal = head.getElement();
+		} else { // somewhere in the middle
+			Node<T> current = head;
+			for (int i = 0; i < index; i++) {
+				current = current.getNextNode();
+			}
 
-        if (index > size) {
-            throw new IndexOutOfBoundsException();
-        }
-        else {
-            for (int i = 0; i < index - 1; i++) {
-                // Incremenet up to the input index - 1, to avoid retrieving null.
-                currentNode = currentNode.getNextNode();
-            }
-        }
+			returnVal = current.getElement();
 
-        // Return the element value at the index that was parsed thru in the for loop.
-        return currentNode.getElement();
-    }
+		}
+		return returnVal;
+	}
+
 
     @Override
     public int indexOf(T element) {

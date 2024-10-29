@@ -254,9 +254,9 @@ public class ListTester {
 		case singleLinkedList:
 			listToUse = new IUSingleLinkedList<Integer>();
 			break;
-//		case doubleLinkedList:
-//			listToUse = new IUDoubleLinkedList<Integer>();
-//			break;
+		case doubleLinkedList:
+			listToUse = new IUDoubleLinkedList<Integer>();
+			break;
 		default:
 			listToUse = null;
 		}
@@ -574,7 +574,7 @@ public class ListTester {
 	 * @return [A] after set(0,A)
 	 */
 	private IndexedUnsortedList<Integer> A_set0A_A() {
-		IndexedUnsortedList<Integer> list = newList(); 
+		IndexedUnsortedList<Integer> list = emptyList_addToFrontA_A(); 
 		list.set(0, ELEMENT_A);
 		return list;
 	}
