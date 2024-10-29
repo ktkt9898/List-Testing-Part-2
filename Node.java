@@ -22,7 +22,7 @@ public class Node<T> {
      * @param element a desired element to be stored.
      * @param nexNode a known node in the chain/linked data structure.
      */
-    public Node(T element, Node<T> nexNode) {
+    public Node(T element, Node<T> nextNode) {
         this.element = element;
         this.nextNode = nextNode;
     }
