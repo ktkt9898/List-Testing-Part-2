@@ -20,7 +20,7 @@ public class Node<T> {
     /**
      * Initialize a new node with a given element and known next node.
      * @param element a desired element to be stored.
-     * @param nexNode a known node in the chain/linked data structure.
+     * @param nextNode a known node in the chain/linked data structure.
      */
     public Node(T element, Node<T> nextNode) {
         this.element = element;
