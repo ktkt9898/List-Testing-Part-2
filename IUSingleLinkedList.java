@@ -486,7 +486,7 @@ public class IUSingleLinkedList<T> implements IndexedUnsortedList<T> {
     @Override
     public Iterator<T> iterator() {
         return new SLLIterator(); // Basic iterator, not to be confused with listIterator (for double linked
-                                  // lists)
+        // lists)
     }
 
     @Override
