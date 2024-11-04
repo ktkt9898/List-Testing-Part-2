@@ -45,14 +45,36 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public void addToRear(T element) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addToRear'");
+        // 1. Create a new Node
+        Node<T> newNode = new Node<T>(element);
+
+        // List has no element values then check
+        if (isEmpty()) {
+            newNode = tail = head;
+        }
+
+        // List has element values
+        else {
+        // Start at the end, the rear, which is tail
+        Node<T> targetNode = tail;
+
+        // 2. Set the targetNode, tail, to the newNode
+        targetNode.setNextNode(newNode);
+
+        // 3. Set newNode's previous to targetNode
+        newNode.setPreviousNode(targetNode);
+
+        // 4. Update tail to be the newNode
+        tail = newNode;
+        }
+
+        size++;
+        versionNumber++;
     }
 
     @Override
     public void add(T element) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'add'");
+        addToRear(element);
     }
 
     @Override
@@ -193,7 +215,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
         // Unlike with a single list, we can go directly to the node.
         // [A, B, C] and we want index 2, which is C, we keep going
-        for (int i = 0; i < index; i++) {
+        for (int i = 0; i < index - 1; i++) {
             currentNode = currentNode.getNextNode();
         }
 
@@ -228,8 +250,31 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public void set(int index, T element) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        // Check if index is in bounds
+        if (index >= size() || index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        // Start at the head
+        Node<T> targetNode = head;
+
+        // In the case of a single element list
+        if (index == 0) {
+            targetNode.setElement(element);
+        }
+
+        // Go up to the element index previous value
+        // So, for [A, B, C, D] and we call set(2, F) we really want to replace C at index 2
+        // Go up to index but not including, which is 2, so we stop at B and call getNextNode
+        // targetNode is now updated to become C
+        for (int i = 0; i < index; i++) {
+            targetNode = targetNode.getNextNode();
+        }
+
+        // Now call setElement onto the index 2 node to hold element F or whatever element value.
+        targetNode.setElement(element);
+
+        versionNumber++;
     }
 
     @Override

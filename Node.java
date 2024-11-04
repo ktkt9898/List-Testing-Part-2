@@ -16,7 +16,7 @@ public class Node<T> {
     public Node(T element) {
         // Nodes are always a placeholder for an element.
         this.element = element;
-        this.nextNode = null;
+        nextNode = null;
         previousNode = null;
     }
 
@@ -72,6 +72,7 @@ public class Node<T> {
 
     /**
      * Set the previous node
+     * @param previousNode the previous existing Node
      */
     public void setPreviousNode(Node<T> previousNode) {
         this.previousNode = previousNode;
