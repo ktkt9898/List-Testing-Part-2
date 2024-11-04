@@ -142,60 +142,85 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public T remove(T element) {
-        if (isEmpty()) {
-            throw new NoSuchElementException();
-        }
+        // if (isEmpty()) {
+        //     throw new NoSuchElementException();
+        // }
 
+        // Start at the head
         Node<T> targetNode = head;
-        Node<T> tempNext = null;
-        Node<T> tempPrev = null;
 
-        // Check at the head
-        // [A, B, C]
-        if (element.equals(targetNode.getElement())) {
-            head = head.getNextNode();
-            // [A] only for single element list
-            if (head == null) {
-                tail = null;
-            }
-        }
-        
-        // Check at the tail
-        else if (tail.getElement().equals(element)) {
-            // Update the new tail
-            // [A, B, C] and we remove C, then B is the new tail
-            // First store the old tail, which is C
-            targetNode = tail;
-
-            // Now update the new tail to B
-            tail = tail.getPreviousNode();
-
-            // Update the new null position
-            tail.setNextNode(null);
+        while (targetNode != null && !targetNode.getElement().equals(element)) {
+            targetNode = targetNode.getNextNode();
         }
 
-        // Check in the middle
-        // If we are removing B from [A, B, C]
-        else {
-            while (targetNode.getNextNode() != null && !targetNode.getElement().equals(element)) {
-                targetNode = targetNode.getNextNode();
-            }
-            // Temp next is C, temp prev is B
-            tempNext = targetNode.getNextNode();
-            tempPrev = targetNode.getPreviousNode();
-
-            // Now update the connection after B is unlinked
-            // Now set A to point to C
-            tempPrev.setNextNode(tempNext);
-            
-            // Set C previous point to A
-            tempNext.setPreviousNode(tempPrev);
-        }
-
-        // If no element was found after the entire search
         if (targetNode == null) {
             throw new NoSuchElementException();
         }
+
+        if (targetNode != tail) {
+            targetNode.getNextNode().setPreviousNode(targetNode.getPreviousNode());
+        }
+        else {
+            tail = targetNode.getPreviousNode();
+        }
+
+        if (targetNode != head) {
+            targetNode.getPreviousNode().setNextNode(targetNode.getNextNode());
+        }
+        else {
+            head = targetNode.getNextNode();
+        }
+
+        // Node<T> targetNode = head;
+        // Node<T> tempNext = null;
+        // Node<T> tempPrev = null;
+
+        // // Check at the head
+        // // [A, B, C]
+        // if (element.equals(targetNode.getElement())) {
+        //     head = head.getNextNode();
+        //     // [A] only for single element list
+        //     if (head == null) {
+        //         tail = null;
+        //     }
+        // }
+        
+        // // Check at the tail
+        // else if (tail.getElement().equals(element)) {
+        //     // Update the new tail
+        //     // [A, B, C] and we remove C, then B is the new tail
+        //     // First store the old tail, which is C
+        //     targetNode = tail;
+
+        //     // Now update the new tail to B
+        //     tail = tail.getPreviousNode();
+
+        //     // Update the new null position
+        //     tail.setNextNode(null);
+        // }
+
+        // // Check in the middle
+        // // If we are removing B from [A, B, C]
+        // else {
+        //     while (targetNode.getNextNode() != null && !targetNode.getElement().equals(element)) {
+        //         targetNode = targetNode.getNextNode();
+        //     }
+        //     // Temp next is C, temp prev is B
+        //     tempNext = targetNode.getNextNode();
+        //     tempPrev = targetNode.getPreviousNode();
+
+        //     // Now update the connection after B is unlinked
+        //     // Now set A to point to C
+        //     tempPrev.setNextNode(tempNext);
+            
+        //     // Set C previous point to A
+        //     tempNext.setPreviousNode(tempPrev);
+        // }
+
+        // // If no element was found after the entire search
+        // if (targetNode == null) {
+        //     throw new NoSuchElementException();
+        // }
 
         size--;
         versionNumber++;
