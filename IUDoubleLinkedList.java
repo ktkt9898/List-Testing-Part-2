@@ -1,3 +1,4 @@
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -142,85 +143,85 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public T remove(T element) {
-        // if (isEmpty()) {
-        //     throw new NoSuchElementException();
-        // }
-
-        // Start at the head
-        Node<T> targetNode = head;
-
-        while (targetNode != null && !targetNode.getElement().equals(element)) {
-            targetNode = targetNode.getNextNode();
-        }
-
-        if (targetNode == null) {
+        if (isEmpty()) {
             throw new NoSuchElementException();
         }
 
-        if (targetNode != tail) {
-            targetNode.getNextNode().setPreviousNode(targetNode.getPreviousNode());
-        }
-        else {
-            tail = targetNode.getPreviousNode();
-        }
-
-        if (targetNode != head) {
-            targetNode.getPreviousNode().setNextNode(targetNode.getNextNode());
-        }
-        else {
-            head = targetNode.getNextNode();
-        }
-
+        // Start at the head
         // Node<T> targetNode = head;
-        // Node<T> tempNext = null;
-        // Node<T> tempPrev = null;
 
-        // // Check at the head
-        // // [A, B, C]
-        // if (element.equals(targetNode.getElement())) {
-        //     head = head.getNextNode();
-        //     // [A] only for single element list
-        //     if (head == null) {
-        //         tail = null;
-        //     }
-        // }
-        
-        // // Check at the tail
-        // else if (tail.getElement().equals(element)) {
-        //     // Update the new tail
-        //     // [A, B, C] and we remove C, then B is the new tail
-        //     // First store the old tail, which is C
-        //     targetNode = tail;
-
-        //     // Now update the new tail to B
-        //     tail = tail.getPreviousNode();
-
-        //     // Update the new null position
-        //     tail.setNextNode(null);
+        // while (targetNode != null && !targetNode.getElement().equals(element)) {
+        //     targetNode = targetNode.getNextNode();
         // }
 
-        // // Check in the middle
-        // // If we are removing B from [A, B, C]
-        // else {
-        //     while (targetNode.getNextNode() != null && !targetNode.getElement().equals(element)) {
-        //         targetNode = targetNode.getNextNode();
-        //     }
-        //     // Temp next is C, temp prev is B
-        //     tempNext = targetNode.getNextNode();
-        //     tempPrev = targetNode.getPreviousNode();
-
-        //     // Now update the connection after B is unlinked
-        //     // Now set A to point to C
-        //     tempPrev.setNextNode(tempNext);
-            
-        //     // Set C previous point to A
-        //     tempNext.setPreviousNode(tempPrev);
-        // }
-
-        // // If no element was found after the entire search
         // if (targetNode == null) {
         //     throw new NoSuchElementException();
         // }
+
+        // if (targetNode != tail) {
+        //     targetNode.getNextNode().setPreviousNode(targetNode.getPreviousNode());
+        // }
+        // else {
+        //     tail = targetNode.getPreviousNode();
+        // }
+
+        // if (targetNode != head) {
+        //     targetNode.getPreviousNode().setNextNode(targetNode.getNextNode());
+        // }
+        // else {
+        //     head = targetNode.getNextNode();
+        // }
+
+        Node<T> targetNode = head;
+        Node<T> tempNext = null;
+        Node<T> tempPrev = null;
+
+        // Check at the head
+        // [A, B, C]
+        if (element.equals(targetNode.getElement())) {
+            head = head.getNextNode();
+            // [A] only for single element list
+            if (head == null) {
+                tail = null;
+            }
+        }
+        
+        // Check at the tail
+        else if (tail.getElement().equals(element)) {
+            // Update the new tail
+            // [A, B, C] and we remove C, then B is the new tail
+            // First store the old tail, which is C
+            targetNode = tail;
+
+            // Now update the new tail to B
+            tail = tail.getPreviousNode();
+
+            // Update the new null position
+            tail.setNextNode(null);
+        }
+
+        // Check in the middle
+        // If we are removing B from [A, B, C]
+        else {
+            while (targetNode.getNextNode() != null && !targetNode.getElement().equals(element)) {
+                targetNode = targetNode.getNextNode();
+            }
+            // Temp next is C, temp prev is B
+            tempNext = targetNode.getNextNode();
+            tempPrev = targetNode.getPreviousNode();
+
+            // Now update the connection after B is unlinked
+            // Now set A to point to C
+            tempPrev.setNextNode(tempNext);
+            
+            // Set C previous point to A
+            tempNext.setPreviousNode(tempPrev);
+        }
+
+        // If no element was found after the entire search
+        if (targetNode == null) {
+            throw new NoSuchElementException();
+        }
 
         size--;
         versionNumber++;
@@ -240,7 +241,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
         // Unlike with a single list, we can go directly to the node.
         // [A, B, C] and we want index 2, which is C, we keep going
-        for (int i = 0; i < index - 1; i++) {
+        for (int i = 0; i < index; i++) {
             currentNode = currentNode.getNextNode();
         }
 
@@ -417,21 +418,156 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
         return stringBuilder.toString();
     }
 
+    // Just need to make one iteartor class, since we can inherit all the methods of the standard iterator
     @Override
     public Iterator<T> iterator() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'iterator'");
+        // Inherits the standard java iterator methods to be used as a basic iterator
+        return new DLLIterator();
     }
 
     @Override
     public ListIterator<T> listIterator() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'listIterator'");
+        // Inherits the basic iterator methods but also the added functionality of the list iterator
+        return new DLLIterator();
     }
 
     @Override
     public ListIterator<T> listIterator(int startingIndex) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'listIterator'");
+        return new DLLIterator(startingIndex);
+    }
+
+    /**
+     * ListIterator for use with a Double Linked List, and also inherits a basic iterator
+     */
+    private class DLLIterator implements ListIterator<T> {
+        // Only requires a nextNode, iterators purpose is to navigate beginning to end of the list
+        // If we require the preivous node, we call getPreviousNode
+        // Only time nextNode is null is at the end of the list
+
+        private Node<T> nextNode;
+
+        // nextIndex can return the previous by considering nextIndex - 1
+        private int nextIndex;
+        private int iterVersionNumber;
+
+        // Must also consider which direction is valid
+        private boolean canRemove;
+
+        // Concept for removing next and previous
+        private Node<T> lastReturnedNode;
+
+        /**
+         * Iterator that starts at the beginning of the list
+         */
+        public DLLIterator() {
+            nextNode = head;
+            nextIndex = 0;
+            iterVersionNumber = versionNumber;
+
+            // Or call the second constructor at startIndex of 0
+        }
+
+        /**
+         * Iterator that can start at a desired index
+         * @param startIndex takes in a given index value to start
+         */
+        public DLLIterator(int startIndex) {
+            // Bounds check, allows the start before null but nothing after
+            // Does not allow -1
+            if (startIndex < 0 || startIndex > size) {
+                throw new IndexOutOfBoundsException();
+            }
+
+            nextNode = head;
+
+            // Go up to the index, call next node so we are at the exact index
+            for (int i = 0; i < startIndex; i++) {
+                nextNode = nextNode.getNextNode();
+            }
+
+            nextIndex = startIndex;
+            iterVersionNumber = versionNumber;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+
+            // Return true if the nextNode is not null
+            return nextNode != null;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            // Store the next Node's element before moving
+            T returnValue = nextNode.getElement();
+
+            // Now move AND incremenet index value
+            nextNode = nextNode.getNextNode();
+            nextIndex++;
+            return returnValue;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+
+            // Only one place in the list that doesn't have a previous, which is the head
+            // Return true if the nextNode is not head
+            return nextNode != head;
+        }
+
+        @Override
+        public T previous() {
+            if (!hasPrevious()) {
+                throw new NoSuchElementException();
+            }
+
+            T returnValue = nextNode.getPreviousNode().getElement();
+
+            // Similar to next() but we decrement the nextIndex
+            nextNode.getPreviousNode();
+            nextIndex--;
+            return returnValue;
+        }
+
+        @Override
+        public int nextIndex() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'nextIndex'");
+        }
+
+        @Override
+        public int previousIndex() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'previousIndex'");
+        }
+
+        @Override
+        public void remove() {
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+        }
+
+        @Override
+        public void set(T e) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'set'");
+        }
+
+        @Override
+        public void add(T e) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'add'");
+        }
     }
 }
