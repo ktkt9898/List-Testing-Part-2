@@ -125,12 +125,61 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public void add(int index, T element) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'add'");
+        if (index >= size() || index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        // If adding at 0, the head
+        if (index == 0) {
+            addToFront(element);
+        }
+        else {
+            // Start at the head
+            Node<T> currentNode = head;
+
+            // [A, B, C, D] 0, 1, 2, 3 and we want to add E at index 2, we go up to index 2 but not including, so we stop at
+            // index 1, B and call get next which assings currentNode to be C, the correct index
+            for (int i = 0; i < index; i++) {
+                currentNode = currentNode.getNextNode();
+            }
+            
+            Node<T> newNode = new Node<T>(element);
+            Node<T> tempNext = currentNode.getNextNode();
+
+            if (tempNext != null) {
+                // Set E to have it's next Node point to D
+                newNode.setNextNode(tempNext);
+
+                // We stored the original next of C, which was D, so
+                tempNext.setPreviousNode(newNode); 
+            }
+            else {
+                // tempNext being null means we are at the end of the list, therefore
+                // the newNode is the tail
+                newNode.setNextNode(null);
+                tail = newNode;
+            }
+
+            // Set C to have it's next Node point to E
+            currentNode.setNextNode(newNode);
+
+            // Set E's previous Node to point to C
+            newNode.setPreviousNode(currentNode);
+            // [A, B, C, E, D]
+
+            size++;
+            versionNumber++;
+        }
     }
 
     @Override
     public T removeFirst() {
+        // // Use the list iterator
+        // ListIterator<T> lit = listIterator();
+        // T returnValue = lit.next();
+        // lit.remove();
+        // return returnValue;
+
         if (isEmpty()) {
             throw new NoSuchElementException();
         }
@@ -152,17 +201,24 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public T removeLast() {
-        // Update the new tail
-        // [A, B, C] and we remove C, then B is the new tail
-        // First store the old tail, which is C
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        
         T returnValue = tail.getElement();
 
-        // Now update the new tail to B
-        tail = tail.getPreviousNode();
+        // For one element list
+        if (size() == 1) {
+            head = tail = null;
+        }
+        
+        else {
+            tail = tail.getPreviousNode();
 
-        // Update the new null position
-        tail.setNextNode(null);
-
+            // Update the new null position
+            tail.setNextNode(null);
+        }
+        
         size--;
         versionNumber++;
         return returnValue;
@@ -170,50 +226,69 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public T remove(T element) {
-        if (isEmpty()) {
+        // if (isEmpty()) {
+        //     throw new NoSuchElementException();
+        // }
+
+        // Could use the list iterator
+        ListIterator<T> lit = listIterator();
+        T returnValue = null;
+
+        boolean found = false;
+        while (lit.hasNext() && !found) {
+            returnValue = lit.next();
+            if (returnValue.equals(element)) {
+                found = true;
+            }
+        }
+
+        if (!found) {
             throw new NoSuchElementException();
         }
+        lit.remove();
+        return returnValue;
 
-        Node<T> targetNode = head;
-        Node<T> tempNext = null;
-        Node<T> tempPrev = null;
+        // Using a standard method signature
+        // Node<T> targetNode = head;
+        // Node<T> tempNext = null;
+        // Node<T> tempPrev = null;
 
-        // Check at the head
-        // [A, B, C]
-        if (element.equals(targetNode.getElement())) {
-            return removeFirst();
-        }
+        // // Check at the head
+        // // [A, B, C]
+        // if (element.equals(targetNode.getElement())) {
+        //     return removeFirst();
+        // }
         
-        // Check at the tail
-        else if (tail.getElement().equals(element)) {
-            return removeLast();
-        }
+        // // Check at the tail
+        // else if (tail.getElement().equals(element)) {
+        //     return removeLast();
+        // }
 
-        // Check in the middle
-        // If we are removing B from [A, B, C]
-        else {
-            while (targetNode.getNextNode() != null && !targetNode.getElement().equals(element)) {
-                targetNode = targetNode.getNextNode();
-                if (targetNode.equals(tail)) {
-                    throw new NoSuchElementException();
-                }
-            }
-            // Temp next is C, temp prev is B
-            tempNext = targetNode.getNextNode();
-            tempPrev = targetNode.getPreviousNode();
+        // // Check in the middle
+        // // If we are removing B from [A, B, C]
+        // else {
+        //     while (targetNode.getNextNode() != null && !targetNode.getElement().equals(element)) {
+        //         targetNode = targetNode.getNextNode();
+        //         if (targetNode.equals(tail)) {
+        //             throw new NoSuchElementException();
+        //         }
+        //     }
+        //     // Temp next is C, temp prev is B
+        //     tempNext = targetNode.getNextNode();
+        //     tempPrev = targetNode.getPreviousNode();
 
-            // Now update the connection after B is unlinked
-            // Now set A to point to C
-            tempPrev.setNextNode(tempNext);
+        //     // Now update the connection after B is unlinked
+        //     // Now set A to point to C
+        //     tempPrev.setNextNode(tempNext);
             
-            // Set C previous point to A
-            tempNext.setPreviousNode(tempPrev);
+        //     // Set C previous point to A
+        //     tempNext.setPreviousNode(tempPrev);
 
-            size--;
-            versionNumber++;
-        }
+        //     size--;
+        //     versionNumber++;
+        // }
 
-        return targetNode.getElement();
+        // return targetNode.getElement();
     }
 
     @Override
@@ -223,6 +298,14 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
         if (index >= size() || index < 0) {
             throw new IndexOutOfBoundsException();
         }
+
+        // // Could also use the Iterator's remove functionality
+        // // In front of the given index
+        // ListIterator<T> lit = listIterator(index);
+        // T returnValue = lit.next();
+        // // remove the last element we returned, above
+        // lit.remove();
+        // return returnValue;
 
         // Always start at the beginning
         Node<T> currentNode = head;
@@ -293,8 +376,26 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public T get(int index) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
+        if (index >= size() || index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        T returnValue = null;
+
+        // In the case of index is 0, the head
+        if (index == 0) {
+            returnValue = head.getElement();
+        }
+
+        Node<T> targetNode = head;
+
+        for (int i = 0; i < index; i++) {
+            targetNode = targetNode.getNextNode();
+        }
+
+        returnValue = targetNode.getElement();
+
+        return returnValue;
     }
 
     @Override
@@ -438,10 +539,8 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
         private int nextIndex;
         private int iterVersionNumber;
 
-        // Must also consider which direction is valid
-        private boolean canRemove;
-
         // Concept for removing next and previous
+        // Compare last returned Node and next Node for which direction
         private Node<T> lastReturnedNode;
 
         /**
@@ -451,6 +550,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
             nextNode = head;
             nextIndex = 0;
             iterVersionNumber = versionNumber;
+            lastReturnedNode = null;
 
             // Or call the second constructor at startIndex of 0
         }
@@ -466,6 +566,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
                 throw new IndexOutOfBoundsException();
             }
 
+            // For a large index, could also determine the best starting point instead of always from the beginning
             nextNode = head;
 
             // Go up to the index, call next node so we are at the exact index
@@ -475,6 +576,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
             nextIndex = startIndex;
             iterVersionNumber = versionNumber;
+            lastReturnedNode = null;
         }
 
         @Override
@@ -495,6 +597,9 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
             // Store the next Node's element before moving
             T returnValue = nextNode.getElement();
+
+            // Need to store the lastReturnedNode
+            lastReturnedNode = nextNode;
 
             // Now move AND incremenet index value
             nextNode = nextNode.getNextNode();
@@ -529,14 +634,12 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
         @Override
         public int nextIndex() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'nextIndex'");
+            return nextIndex;
         }
 
         @Override
         public int previousIndex() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'previousIndex'");
+            return nextIndex - 1;
         }
 
         @Override
@@ -544,17 +647,61 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
             if (iterVersionNumber != versionNumber) {
                 throw new ConcurrentModificationException();
             }
+
+            // Similar to canRemove being false
+            if (lastReturnedNode == null) {
+                throw new IllegalStateException();
+            }
+
+            // In the middle of a list
+            if (lastReturnedNode != head) {
+                // Efficient way to set a list [A, B, C] to remove B by pointing A to C
+            lastReturnedNode.getPreviousNode().setNextNode(lastReturnedNode.getNextNode());
+            }
+            // In the event there is no lastReturnedNode and the list contains values
+            // Assign the head to simply become the next Node to become the head
+            else {
+                head = head.getNextNode();
+            }
+            
+            if (lastReturnedNode != tail) {
+                // Now update C to A, which would have been B's next Node
+                lastReturnedNode.getNextNode().setPreviousNode(lastReturnedNode.getPreviousNode());
+            }
+            // Retrieve the value to the left, the previous, of the tail
+            // For [A, B, C] and we are at C, the last previous node was B
+            // B should now become the tail, the previous node of C
+            else {
+                tail = tail.getPreviousNode();
+            }
+
+            // If the lastReturnNode is not equal to nextNode, the last move was next to the right
+            if (lastReturnedNode != nextNode) { // last move was next
+                nextIndex--; // fewer nodes to the left than there used to be
+            }
+            else { // last move was previous
+                // [A, B, C, D] iterator was in front of C, but after removal it is now in front of D
+                nextNode = nextNode.getNextNode();
+            }
+
+            // Now "switch" the ability to remove to false by setting lastReturned node
+            lastReturnedNode = null;
+            size--;
+            versionNumber++;
+            iterVersionNumber++;
         }
 
         @Override
         public void set(T e) {
             // TODO Auto-generated method stub
+            // No restrictions on how many times it can be called
             throw new UnsupportedOperationException("Unimplemented method 'set'");
         }
 
         @Override
         public void add(T e) {
             // TODO Auto-generated method stub
+            // Reset lastReturnedNode
             throw new UnsupportedOperationException("Unimplemented method 'add'");
         }
     }
