@@ -26,15 +26,16 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
     public void addToFront(T element) {
         // Similar to single linked list, we essentially overwrite the head to the new node
         Node<T> newNode = new Node<T>(element);
-        newNode.setNextNode(head);
 
-        // Update the original head to refer back to the newNode we are inserting
         // If empty, tail also must be the newNode [] to [A] where A is both the tail and the head.
         if (isEmpty()) {
             tail = newNode;
+            
         }
         // Only perform if NOT empty
         else {
+            // Update the original head to refer back to the newNode we are inserting
+            newNode.setNextNode(head);
             head.setPreviousNode(newNode);
         }
         
@@ -125,7 +126,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public void add(int index, T element) {
-        if (index >= size() || index < 0) {
+        if (index > size() || index < 0) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -166,10 +167,9 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
             // Set E's previous Node to point to C
             newNode.setPreviousNode(currentNode);
             // [A, B, C, E, D]
-
-            size++;
-            versionNumber++;
         }
+        size++;
+        versionNumber++;
     }
 
     @Override
@@ -204,7 +204,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
         if (isEmpty()) {
             throw new NoSuchElementException();
         }
-        
+
         T returnValue = tail.getElement();
 
         // For one element list
