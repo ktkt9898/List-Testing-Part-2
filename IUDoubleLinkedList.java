@@ -126,50 +126,100 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public void add(int index, T element) {
-        if (index > size() || index < 0) {
+        if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException();
         }
-
-        // If adding at 0, the head
+    
+        Node<T> newNode = new Node<T>(element);
+        
         if (index == 0) {
-            addToFront(element);
-        }
-        else {
-            // Start at the head
+            if (isEmpty()) {
+                // If empty, head and tail are the newNode
+                head = tail = newNode;
+            } else {
+                // If not empty, inserting at 0 means this new Node points to the old head, and will later become
+                // the new head
+                newNode.setNextNode(head);
+                head.setPreviousNode(newNode);
+                // Overwrite the old head to become the new head
+                head = newNode;
+            }
+        } else if (index == size()) {
+            // Maximum index value, this will add at the tail
+            newNode.setPreviousNode(tail);
+            tail.setNextNode(newNode);
+            tail = newNode;
+        } else {
+            // Inserting node in the middle of the list, so if [A, B, C], and we try add(1,E) we account index - 1,
+            // to become 1 - 1 = 0. We do not enter the loop in this situation so currentNode stays as head, or index 1,
+            // or A
             Node<T> currentNode = head;
-
-            // [A, B, C, D] 0, 1, 2, 3 and we want to add E at index 2, we go up to index 2 but not including, so we stop at
-            // index 1, B and call get next which assings currentNode to be C, the correct index
-            for (int i = 0; i < index; i++) {
+            for (int i = 0; i < index - 1; i++) {
                 currentNode = currentNode.getNextNode();
             }
+            // Calling currentNode, which is currently A, getNext will retrieve B, and we use this later
+            Node<T> afterIndexNode = currentNode.getNextNode();
             
-            Node<T> newNode = new Node<T>(element);
-            Node<T> tempNext = currentNode.getNextNode();
-
-            if (tempNext != null) {
-                // Set E to have it's next Node point to D
-                newNode.setNextNode(tempNext);
-
-                // We stored the original next of C, which was D, so
-                tempNext.setPreviousNode(newNode); 
-            }
-            else {
-                // tempNext being null means we are at the end of the list, therefore
-                // the newNode is the tail
-                newNode.setNextNode(null);
-                tail = newNode;
-            }
-
-            // Set C to have it's next Node point to E
+            // 1. currentNode is at A, calling setNextNode to be A's next node for newNode, E,
+            // means we have [A, E, B, C]
             currentNode.setNextNode(newNode);
 
-            // Set E's previous Node to point to C
+            // 2. Set E to have its backward pointing back to C
             newNode.setPreviousNode(currentNode);
-            // [A, B, C, E, D]
+
+            // 3. E now needs to point forward to B, which was stored earlier
+            newNode.setNextNode(afterIndexNode);
+
+            // 4. Lastly, B needs to point backwards to E
+            afterIndexNode.setPreviousNode(newNode);
         }
+    
         size++;
         versionNumber++;
+        // if (index >= size() || index < 0) {
+        //     throw new IndexOutOfBoundsException();
+        // }
+
+        // // If adding at 0, the head
+        // if (index == 0) {
+        //     addToFront(element);
+        // }
+        // else {
+        //     // Start at the head
+        //     Node<T> currentNode = head;
+
+        //     // [A, B, C, D] 0, 1, 2, 3 and we want to add E at index 2, we go up to index 2 but not including, so we stop at
+        //     // index 1, B and call get next which assings currentNode to be C, the correct index
+        //     for (int i = 0; i < index; i++) {
+        //         currentNode = currentNode.getNextNode();
+        //     }
+            
+        //     Node<T> newNode = new Node<T>(element);
+        //     Node<T> tempNext = currentNode.getNextNode();
+
+        //     if (tempNext != null) {
+        //         // Set E to have it's next Node point to D
+        //         newNode.setNextNode(tempNext);
+
+        //         // We stored the original next of C, which was D, so
+        //         tempNext.setPreviousNode(newNode); 
+        //     }
+        //     else {
+        //         // tempNext being null means we are at the end of the list, therefore
+        //         // the newNode is the tail
+        //         newNode.setNextNode(null);
+        //         tail = newNode;
+        //     }
+
+        //     // Set C to have it's next Node point to E
+        //     currentNode.setNextNode(newNode);
+
+        //     // Set E's previous Node to point to C
+        //     newNode.setPreviousNode(currentNode);
+        //     // [A, B, C, E, D]
+        // }
+        // size++;
+        // versionNumber++;
     }
 
     @Override
