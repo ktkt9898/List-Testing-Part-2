@@ -772,6 +772,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
             }
             
             size++;
+            nextIndex++;
             iterVersionNumber++;
             versionNumber++;
         }
