@@ -52,7 +52,8 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
         // List has no element values then check
         if (isEmpty()) {
-            newNode = tail = head;
+            head = newNode;
+            tail = newNode;
         }
 
         // List has element values
@@ -176,50 +177,6 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
     
         size++;
         versionNumber++;
-        // if (index >= size() || index < 0) {
-        //     throw new IndexOutOfBoundsException();
-        // }
-
-        // // If adding at 0, the head
-        // if (index == 0) {
-        //     addToFront(element);
-        // }
-        // else {
-        //     // Start at the head
-        //     Node<T> currentNode = head;
-
-        //     // [A, B, C, D] 0, 1, 2, 3 and we want to add E at index 2, we go up to index 2 but not including, so we stop at
-        //     // index 1, B and call get next which assings currentNode to be C, the correct index
-        //     for (int i = 0; i < index; i++) {
-        //         currentNode = currentNode.getNextNode();
-        //     }
-            
-        //     Node<T> newNode = new Node<T>(element);
-        //     Node<T> tempNext = currentNode.getNextNode();
-
-        //     if (tempNext != null) {
-        //         // Set E to have it's next Node point to D
-        //         newNode.setNextNode(tempNext);
-
-        //         // We stored the original next of C, which was D, so
-        //         tempNext.setPreviousNode(newNode); 
-        //     }
-        //     else {
-        //         // tempNext being null means we are at the end of the list, therefore
-        //         // the newNode is the tail
-        //         newNode.setNextNode(null);
-        //         tail = newNode;
-        //     }
-
-        //     // Set C to have it's next Node point to E
-        //     currentNode.setNextNode(newNode);
-
-        //     // Set E's previous Node to point to C
-        //     newNode.setPreviousNode(currentNode);
-        //     // [A, B, C, E, D]
-        // }
-        // size++;
-        // versionNumber++;
     }
 
     @Override
@@ -426,24 +383,25 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public T get(int index) {
-        if (index >= size() || index < 0) {
+        if (index >= size || index < 0) {
             throw new IndexOutOfBoundsException();
         }
 
-        T returnValue = null;
+        T returnValue;
 
         // In the case of index is 0, the head
         if (index == 0) {
             returnValue = head.getElement();
         }
+        
+        else {
+            Node<T> targetNode = head;
 
-        Node<T> targetNode = head;
-
-        for (int i = 0; i < index; i++) {
-            targetNode = targetNode.getNextNode();
+            for (int i = 0; i < index; i++) {
+                targetNode = targetNode.getNextNode();
+            }
+            returnValue = targetNode.getElement();
         }
-
-        returnValue = targetNode.getElement();
 
         return returnValue;
     }
@@ -635,6 +593,10 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
                 throw new ConcurrentModificationException();
             }
 
+            if (nextNode == null) {
+                return false;
+            }
+
             // Return true if the nextNode is not null
             return nextNode != null;
         }
@@ -663,6 +625,10 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
                 throw new ConcurrentModificationException();
             }
 
+            if (nextNode == null) {
+                return false;
+            }
+
             // Only one place in the list that doesn't have a previous, which is the head
             // Return true if the nextNode is not head
             return nextNode != head;
@@ -676,8 +642,11 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
             T returnValue = nextNode.getPreviousNode().getElement();
 
+            // Need to store the lastReturnedNode
+            lastReturnedNode = nextNode;
+
             // Similar to next() but we decrement the nextIndex
-            nextNode.getPreviousNode();
+            nextNode = nextNode.getPreviousNode();
             nextIndex--;
             return returnValue;
         }
@@ -743,16 +712,68 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
         @Override
         public void set(T e) {
-            // TODO Auto-generated method stub
-            // No restrictions on how many times it can be called
-            throw new UnsupportedOperationException("Unimplemented method 'set'");
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+
+            // Similar to canRemove being false
+            if (lastReturnedNode == null) {
+                throw new IllegalStateException();
+            }
+
+            // Simply just need to set the element at the last returned node
+            lastReturnedNode.setElement(e);
+
+            versionNumber++;
+            iterVersionNumber++;
         }
 
         @Override
         public void add(T e) {
-            // TODO Auto-generated method stub
-            // Reset lastReturnedNode
-            throw new UnsupportedOperationException("Unimplemented method 'add'");
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+
+            // For an empty list, head is null, so we assign a newNode to become the head and tail
+            if (head == null) {
+                Node<T> newNode = new Node<T>(e);
+                head = newNode;
+                tail = newNode;
+            }
+
+            // If the nextNode is equal to head, meaning a list has elements, we simply add to Front, which would be
+            // the value before the iterator's cursor
+            else if (nextNode == head) {
+                addToFront(e);
+            }
+
+            // If the nextNode is equal to null, we want to add the tail
+            else if (nextNode == null) {
+                addToRear(e);
+            }
+
+            else {
+                Node<T> newNode = new Node<T>(e);
+                // [A,/\ B, C, D] cursor is adding between A and B, and iterator will return B as its next value
+                // First create a temp variable that retrieves A, the nextNode, B, previous Node
+                Node<T> prevNode = nextNode.getPreviousNode();
+
+                // If we add X, call A to set its next node to be X, the newNode
+                prevNode.setNextNode(newNode);
+
+                // Set X's next Node to be B
+                newNode.setNextNode(nextNode);
+
+                // Set B's previous node to X
+                nextNode.setPreviousNode(newNode);
+
+                // Set X's previous node to be A
+                newNode.setPreviousNode(prevNode);
+            }
+            
+            size++;
+            iterVersionNumber++;
+            versionNumber++;
         }
     }
 }
