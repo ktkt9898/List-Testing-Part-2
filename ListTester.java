@@ -233,7 +233,8 @@ public class ListTester {
 		testSingleElementList(AB_removeLast_A, "AB_removeLast_A", LIST_A, STRING_A); // Iterator 1 element list
 		testSingleElementList(AB_IterRemoveA_B, "AB_IterRemoveA_B", LIST_B, STRING_B); // Iterator 1 element list
 		testSingleElementList(AB_IterRemoveB_A, "AB_IterRemoveB_A", LIST_A, STRING_A); // Iterator 1 element list
-		testSingleElementList(AB_listIterPreviousARemoveA_B, null, LIST_B, STRING_B);
+		testSingleElementList(AB_ListIterIndex1PreviousARemoveA_B, "AB_ListIterIndex1PreviousARemoveA_B", LIST_B, STRING_B);
+		testSingleElementList(AB_ListIterIndex2PreviousBRemoveB_A, "AB_ListIterIndex1PreviousARemoveA_B", LIST_A, STRING_A);
 		//2-element to 3-element
 		testThreeElementList(AB_addToRearC_ABC, "AB_addToRearC_ABC", LIST_ABC, STRING_ABC);
 		//2-element to changed 2-element via set()
@@ -1000,7 +1001,8 @@ public class ListTester {
 	 */
 	private IndexedUnsortedList<Integer> A_IterPreviousARemoveA_emptyList() {
 		IndexedUnsortedList<Integer> list = emptyList_addToFrontA_A(); 
-		ListIterator<Integer> lit = list.listIterator(0);
+		// Position the iterator at index 1, so we can call previous
+		ListIterator<Integer> lit = list.listIterator(1);
 		lit.previous();
 		lit.remove();
 		return list;
@@ -1010,7 +1012,7 @@ public class ListTester {
 	/** Scenario: [A,B] -> listIterator removes A after previous -> [B] 
 	 * @return [B] after listIterator removes A
 	 */
-	private IndexedUnsortedList<Integer> AB_listIterPreviousARemoveA_B() {
+	private IndexedUnsortedList<Integer> AB_listIterIndex1PreviousARemoveA_B() {
 		IndexedUnsortedList<Integer> list = A_addToRearB_AB();
 		// Start after A, at index 1, but not after B yet
 		ListIterator<Integer> lit = list.listIterator(1);
@@ -1018,20 +1020,20 @@ public class ListTester {
 		lit.remove(); // Now remove the previous, which was A
 		return list;
 	}
-	private Scenario<Integer> AB_listIterPreviousARemoveA_B = () -> AB_listIterPreviousARemoveA_B();
+	private Scenario<Integer> AB_ListIterIndex1PreviousARemoveA_B = () -> AB_listIterIndex1PreviousARemoveA_B();
 
-	// /** Scenario: [A,B] -> listIterator removes B after previous -> [A] 
-	//  * @return [A] after listIterator removes B
-	//  */
-	// private IndexedUnsortedList<Integer> AB_listIterPreviousARemoveA_B() {
-	// 	IndexedUnsortedList<Integer> list = A_addToRearB_AB();
-	// 	// Start after A, at index 1, but not after B yet
-	// 	ListIterator<Integer> lit = list.listIterator(0);
-	// 	lit.previous();
-	// 	lit.remove(); // Now remove the previous, which was A
-	// 	return list;
-	// }
-	// private Scenario<Integer> AB_listIterPreviousARemoveA_B = () -> AB_listIterPreviousARemoveA_B();
+		/** Scenario: [A,B] -> listIterator removes B after previous -> [A] 
+	 * @return [A] after listIterator removes B
+	 */
+	private IndexedUnsortedList<Integer> AB_listIterIndex2PreviousBRemoveB_A() {
+		IndexedUnsortedList<Integer> list = A_addToRearB_AB();
+		// Start after B, at index 2, but do not access null
+		ListIterator<Integer> lit = list.listIterator(2);
+		lit.previous();
+		lit.remove(); // Now remove the previous, which was B
+		return list;
+	}
+	private Scenario<Integer> AB_ListIterIndex2PreviousBRemoveB_A = () -> AB_listIterIndex2PreviousBRemoveB_A();
 
 	/////////////////////////////////
 	//XXX Tests for 0-element list
