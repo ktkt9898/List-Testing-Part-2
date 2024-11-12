@@ -233,69 +233,47 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
     @Override
     public T remove(T element) {
-        // if (isEmpty()) {
+        // Could use the list iterator
+        // ListIterator<T> lit = listIterator();
+        // T returnValue = null;
+
+        // boolean found = false;
+        // while (lit.hasNext() && !found) {
+        //     returnValue = lit.next();
+        //     if (returnValue.equals(element)) {
+        //         found = true;
+        //     }
+        // }
+
+        // if (!found) {
         //     throw new NoSuchElementException();
         // }
-
-        // Could use the list iterator
-        ListIterator<T> lit = listIterator();
-        T returnValue = null;
-
-        boolean found = false;
-        while (lit.hasNext() && !found) {
-            returnValue = lit.next();
-            if (returnValue.equals(element)) {
-                found = true;
-            }
-        }
-
-        if (!found) {
-            throw new NoSuchElementException();
-        }
-        lit.remove();
-        return returnValue;
+        // lit.remove();
+        // return returnValue;
 
         // Using a standard method signature
-        // Node<T> targetNode = head;
-        // Node<T> tempNext = null;
-        // Node<T> tempPrev = null;
+        Node<T> targetNode = head;
 
-        // // Check at the head
-        // // [A, B, C]
-        // if (element.equals(targetNode.getElement())) {
-        //     return removeFirst();
-        // }
-        
-        // // Check at the tail
-        // else if (tail.getElement().equals(element)) {
-        //     return removeLast();
-        // }
+        while (targetNode != null && !targetNode.getElement().equals(element)) {
+            targetNode = targetNode.getNextNode();
+        }
+        if (targetNode == null) {
+            throw new NoSuchElementException();
+        }
+        if (targetNode != tail) {
+            targetNode.getNextNode().setPreviousNode(targetNode.getPreviousNode());
+        } else {
+            tail = targetNode.getPreviousNode();
+        }
+        if (targetNode != head) {
+            targetNode.getPreviousNode().setNextNode(targetNode.getNextNode());
+        } else {
+            head = targetNode.getNextNode();
+        }
 
-        // // Check in the middle
-        // // If we are removing B from [A, B, C]
-        // else {
-        //     while (targetNode.getNextNode() != null && !targetNode.getElement().equals(element)) {
-        //         targetNode = targetNode.getNextNode();
-        //         if (targetNode.equals(tail)) {
-        //             throw new NoSuchElementException();
-        //         }
-        //     }
-        //     // Temp next is C, temp prev is B
-        //     tempNext = targetNode.getNextNode();
-        //     tempPrev = targetNode.getPreviousNode();
-
-        //     // Now update the connection after B is unlinked
-        //     // Now set A to point to C
-        //     tempPrev.setNextNode(tempNext);
-            
-        //     // Set C previous point to A
-        //     tempNext.setPreviousNode(tempPrev);
-
-        //     size--;
-        //     versionNumber++;
-        // }
-
-        // return targetNode.getElement();
+        size--;
+        versionNumber++;
+        return targetNode.getElement();
     }
 
     @Override
@@ -593,10 +571,6 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
                 throw new ConcurrentModificationException();
             }
 
-            if (nextNode == null) {
-                return false;
-            }
-
             // Return true if the nextNode is not null
             return nextNode != null;
         }
@@ -625,10 +599,6 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
                 throw new ConcurrentModificationException();
             }
 
-            if (nextNode == null) {
-                return false;
-            }
-
             // Only one place in the list that doesn't have a previous, which is the head
             // Return true if the nextNode is not head
             return nextNode != head;
@@ -640,24 +610,38 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
                 throw new NoSuchElementException();
             }
 
-            T returnValue = nextNode.getPreviousNode().getElement();
+            if (nextNode == null) {
+                nextNode = tail;
+            }
+            else {
+                nextNode = nextNode.getPreviousNode();
+            }
+
+            // T returnValue = nextNode.getElement();
 
             // Need to store the lastReturnedNode
             lastReturnedNode = nextNode;
 
             // Similar to next() but we decrement the nextIndex
-            nextNode = nextNode.getPreviousNode();
             nextIndex--;
-            return returnValue;
+            return nextNode.getElement();
         }
 
         @Override
         public int nextIndex() {
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+            
             return nextIndex;
         }
 
         @Override
         public int previousIndex() {
+            if (iterVersionNumber != versionNumber) {
+                throw new ConcurrentModificationException();
+            }
+
             return nextIndex - 1;
         }
 
@@ -739,6 +723,8 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
                 Node<T> newNode = new Node<T>(e);
                 head = newNode;
                 tail = newNode;
+                size++;
+                versionNumber++;
             }
 
             // If the nextNode is equal to head, meaning a list has elements, we simply add to Front, which would be
@@ -769,12 +755,13 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
 
                 // Set X's previous node to be A
                 newNode.setPreviousNode(prevNode);
+
+                size++;
+                versionNumber++;
             }
             
-            size++;
             nextIndex++;
             iterVersionNumber++;
-            versionNumber++;
         }
     }
 }
