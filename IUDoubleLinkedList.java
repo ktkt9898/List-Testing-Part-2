@@ -152,21 +152,21 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
             tail = newNode;
         } else {
             // Inserting node in the middle of the list, so if [A, B, C], and we try add(1,E) we account index - 1,
-            // to become 1 - 1 = 0. We do not enter the loop in this situation so currentNode stays as head, or index 1,
+            // to become 1 - 1 = 0. We do not enter the loop in this situation so targetNode stays as head, or index 1,
             // or A
-            Node<T> currentNode = head;
+            Node<T> targetNode = head;
             for (int i = 0; i < index - 1; i++) {
-                currentNode = currentNode.getNextNode();
+                targetNode = targetNode.getNextNode();
             }
-            // Calling currentNode, which is currently A, getNext will retrieve B, and we use this later
-            Node<T> afterIndexNode = currentNode.getNextNode();
+            // Calling targetNode, which is currently A, getNext will retrieve B, and we use this later
+            Node<T> afterIndexNode = targetNode.getNextNode();
             
-            // 1. currentNode is at A, calling setNextNode to be A's next node for newNode, E,
+            // 1. targetNode is at A, calling setNextNode to be A's next node for newNode, E,
             // means we have [A, E, B, C]
-            currentNode.setNextNode(newNode);
+            targetNode.setNextNode(newNode);
 
             // 2. Set E to have its backward pointing back to C
-            newNode.setPreviousNode(currentNode);
+            newNode.setPreviousNode(targetNode);
 
             // 3. E now needs to point forward to B, which was stored earlier
             newNode.setNextNode(afterIndexNode);
@@ -293,12 +293,12 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
         // return returnValue;
 
         // Always start at the beginning
-        Node<T> currentNode = head;
+        Node<T> targetNode = head;
 
         // Unlike with a single list, we can go directly to the node.
         // [A, B, C] and we want index 2, which is C, we keep going
         for (int i = 0; i < index; i++) {
-            currentNode = currentNode.getNextNode();
+            targetNode = targetNode.getNextNode();
         }
 
         // The idea is to ensure the references for the forward and previous do not point to C.
@@ -306,28 +306,28 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
         // If this is true, we must ensure the nextNode is the new head, so [A, B, C] and we remove A, then B
         // becomes the new head.
         if (index == 0) {
-            head = currentNode.getNextNode();
+            head = targetNode.getNextNode();
         }
         else {
-            currentNode.getPreviousNode().setNextNode(currentNode.getNextNode());
+            targetNode.getPreviousNode().setNextNode(targetNode.getNextNode());
         }
 
         // Now check if we are modifying the end, the tail
         // If this is the case, we can move backwards with a double link and set the tail to the previous Node
         // So [A, B, C] and we remove C, then B is the new tail.
-        if (currentNode == tail) {
-            tail = currentNode.getPreviousNode();
+        if (targetNode == tail) {
+            tail = targetNode.getPreviousNode();
         }
         else {
-            currentNode.getNextNode().setPreviousNode(currentNode.getPreviousNode());
+            targetNode.getNextNode().setPreviousNode(targetNode.getPreviousNode());
         }
 
         // Now the node can be handled by java's garbage collection
         size--;
         versionNumber++;
 
-        // We never modified currentNode, so we can retrieve it
-        return currentNode.getElement();
+        // We never modified targetNode, so we can retrieve it
+        return targetNode.getElement();
     }
 
     @Override
@@ -345,16 +345,17 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
             targetNode.setElement(element);
         }
 
-        // Go up to the element index previous value
-        // So, for [A, B, C, D] and we call set(2, F) we really want to replace C at index 2
-        // Go up to index but not including, which is 2, so we stop at B and call getNextNode
-        // targetNode is now updated to become C
-        for (int i = 0; i < index; i++) {
+        else {
+            // Go up to the element index previous value
+            // So, for [A, B, C, D] and we call set(2, F) we really want to replace C at index 2
+            // Go up to index but not including, which is 2, so we stop at B and call getNextNode
+            // targetNode is now updated to become C
+            for (int i = 0; i < index; i++) {
             targetNode = targetNode.getNextNode();
+            }
+            // Now call setElement onto the index 2 node to hold element F or whatever element value.
+            targetNode.setElement(element);
         }
-
-        // Now call setElement onto the index 2 node to hold element F or whatever element value.
-        targetNode.setElement(element);
 
         versionNumber++;
     }
@@ -393,27 +394,27 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T>{
         // If current is equal to null, one past the tail, then the node containing the
         // element
         // was not found.
-        Node<T> currentNode = head;
+        Node<T> targetNode = head;
         int currentIndex = 0;
 
         // While loop since we do not know the exact size.
         // The equals() method compares object contents.
         // As long as the current node is not null, the end of the list, and the element
         // is not found.
-        while (currentNode != null && !currentNode.getElement().equals(element)) {
+        while (targetNode != null && !targetNode.getElement().equals(element)) {
             // The getNextNode() method retrieves the address of the second node first,
             // which then.
             // overwrites the address of the actual current node.
             // Right side of the statement is figured out first, and then the variable is
             // updated.
-            currentNode = currentNode.getNextNode();
+            targetNode = targetNode.getNextNode();
 
             // The mode has shifted, now update the current index.
             currentIndex++;
         }
 
-        // If the currentNode is null, we have reached the end of the list.
-        if (currentNode == null) {
+        // If the targetNode is null, we have reached the end of the list.
+        if (targetNode == null) {
             // Best practice to prevent a "short circuit" in a loop, assign currentIndex to
             // -1 to
             // only have ONE return statement.
