@@ -1,6 +1,7 @@
 /**
  * A node class for creating a linked data structre.
  * Also functions for double linked lists.
+ * 
  * @author Kyle Truschel and CS221-3 F24
  */
 
