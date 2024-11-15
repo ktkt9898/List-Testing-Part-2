@@ -190,12 +190,15 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T> {
 
         T returnValue = head.getElement();
 
-        // Overwrite head by pointing to the next node
-        head = head.getNextNode();
-
         // [A] only for single element list
-        if (head == null) {
+        if (size() == 1) {
+            head = null;
             tail = null;
+        }
+
+        else {
+            // Overwrite head by pointing to the next node
+            head = head.getNextNode();
         }
 
         size--;
@@ -213,7 +216,8 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T> {
 
         // For one element list
         if (size() == 1) {
-            head = tail = null;
+            head = null;
+            tail = null;
         }
 
         else {
@@ -280,7 +284,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T> {
     public T remove(int index) {
         // Index is always one less than size, so we must also check it if equals
         // [A, B, C] has size of 3 but max index of 2 (0, 1, 2).
-        if (index >= size() || index < 0) {
+        if (index < 0 || index >= size()) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -328,7 +332,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T> {
     @Override
     public void set(int index, T element) {
         // Check if index is in bounds
-        if (index >= size() || index < 0) {
+        if (index < 0 || index >= size()) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -360,7 +364,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T> {
 
     @Override
     public T get(int index) {
-        if (index >= size() || index < 0) {
+        if (index < 0 || index >= size()) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -461,11 +465,6 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T> {
     public boolean isEmpty() {
         // Emphasize clarity and concise information.
         return size == 0;
-
-        // Alternative statement:
-        // If head is null, it cannot possibly wrong since if head is lost, the list is
-        // lost.
-        // return head == null;
     }
 
     @Override
