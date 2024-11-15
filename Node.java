@@ -12,6 +12,7 @@ public class Node<T> {
 
     /**
      * Initialize a new node with a desired element.
+     * 
      * @param element a desired element to be stored.
      */
     public Node(T element) {
@@ -23,7 +24,8 @@ public class Node<T> {
 
     /**
      * Initialize a new node with a given element and known next node.
-     * @param element a desired element to be stored.
+     * 
+     * @param element  a desired element to be stored.
      * @param nextNode a known node in the chain/linked data structure.
      */
     public Node(T element, Node<T> nextNode) {
@@ -33,6 +35,7 @@ public class Node<T> {
 
     /**
      * Display the desired element.
+     * 
      * @return an element value.
      */
     public T getElement() {
@@ -41,6 +44,7 @@ public class Node<T> {
 
     /**
      * Overwrite an existing element.
+     * 
      * @param element a desired element to be stored.
      */
     public void setElement(T element) {
@@ -49,6 +53,7 @@ public class Node<T> {
 
     /**
      * Display the next node in the chain.
+     * 
      * @return the next node value.
      */
     public Node<T> getNextNode() {
@@ -57,6 +62,7 @@ public class Node<T> {
 
     /**
      * Overwrite an existing known node.
+     * 
      * @param nextNode a desired node to be overwritten.
      */
     public void setNextNode(Node<T> nextNode) {
@@ -65,6 +71,7 @@ public class Node<T> {
 
     /**
      * Retrieve the previous node
+     * 
      * @return the previous node
      */
     public Node<T> getPreviousNode() {
@@ -73,6 +80,7 @@ public class Node<T> {
 
     /**
      * Set the previous node
+     * 
      * @param previousNode the previous existing Node
      */
     public void setPreviousNode(Node<T> previousNode) {

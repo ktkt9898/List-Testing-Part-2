@@ -145,11 +145,9 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T> {
 
         if (index == 0) {
             addToFront(element);
-        } 
-        else if (index == size()) {
+        } else if (index == size()) {
             addToRear(element);
-        } 
-        else {
+        } else {
             // Inserting node in the middle of the list, so if [A, B, C], and we try
             // add(1,E) we account index - 1,
             // to become 1 - 1 = 0. We do not enter the loop in this situation so targetNode
@@ -179,7 +177,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T> {
 
             size++;
             versionNumber++;
-        } 
+        }
     }
 
     @Override
@@ -253,7 +251,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T> {
         // Ex. [A, B, C] and we remove B, set A to to point to C
         if (targetNode != head) {
             targetNode.getPreviousNode().setNextNode(targetNode.getNextNode());
-        } 
+        }
 
         // Simply "overwrite" the head by pointing it to the targetNode's next
         else {
@@ -265,7 +263,7 @@ public class IUDoubleLinkedList<T> implements IndexedUnsortedList<T> {
         // Ex. [A, B, C] and we already have A pointing to C, we would point C to A.
         if (targetNode != tail) {
             targetNode.getNextNode().setPreviousNode(targetNode.getPreviousNode());
-        } 
+        }
 
         // Simply "overwrite" the tail by pointing it to the targetNode's previous
         else {

@@ -1,30 +1,24 @@
-# Design and Concept
-Compare DLL to SLL and ArrayList
-Why would I pick a DLL? What are the strengths and weaknesses
-more memory needed
-
-****************
+********************************
 * Double-Linked List with Tester
 * CS 221
 * 14 November 2024
-* Kyle Austen Truschel
-**************** 
+* Kyle Truschel and CS221-3 F24
+******************************** 
 
 # OVERVIEW:
 This program functions to serve as a creator of a double linked list data structure, and has the ability to hold any type of object. It also includes a tester file that assures the proper output of said double linked data structure.
 
-
 # INCLUDED FILES:
-* IUDoubleLinkedList - source file
-* ListTester - driver file and source file
-* IndexedUnsortedList - source file
-* Node - source file
-* README - this file
-
+* IUDoubleLinkedList - source file, creates a double linked list
+* ListTester - driver file and source file, test scenario file
+* IndexedUnsortedList - source file, interface for IUDoubleLinkedList
+* Node - source file, necessary for IUDoubleLinkedList functionality
+* README - this file, instructions, and concepts
 
 # COMPILING AND RUNNING:
 Ensure the five included files are in the same directory.
 Then, compile the driver file, ListTester, by inputting into the terminal:
+- Note: The $ represents the console start line
 
 1. $ javac ListTester.java
 
@@ -44,11 +38,9 @@ The console output will however display around 9000+ test scenarios, chipping aw
 
 # PROGRAM DESIGN AND IMPORTANT CONCEPTS:
 1. The first concept to be aware of is viewable in the IndexUnsortedList.java file/the interface class.
-
 - This functions as the basic interface that the IUDoubleLinkedList.java file, the double linked list, implements, including its expected behaviors. The basic overview of this class is that it provides a framework within the double linked list, such as the expected proper output when adding, setting, getting, and removing, and the expected appropriate error handling when an issue propagates.
 
 2. The second concept is the Node.java/Node class. This is a critical concept for the "links" for the double linked list.
-
 - The Node itself serves as an object that contains elements
 - The Node class itself has the instance variables of element, which itself is a generic type to hold any object, a nextNode, and previousNode.
 - The Node class has two constructors, one that creates an initially empty Node with an element assigned, and another constructor that still creates a new node, but additionally takes in a known/existing nextNode in the double linked list.
@@ -83,7 +75,7 @@ Specifically, the remove(index) has a bounds check, to ensure proper index searc
 - size, returns the size
 - toString, utilizes the StringBuilder to properly output the contents of a double linked list
 
-4. Lastly, the fourth concept is the List Iterator, which itself is a private class called DLLIterator inside the IUDoubleLinkedList class that iself implements from the ListIterator java class. Also utilizes generic types to ensure any object can be held in the double linked list.
+4. The fourth concept is the List Iterator, which itself is a private class called DLLIterator inside the IUDoubleLinkedList class that iself implements from the ListIterator java class. Also utilizes generic types to ensure any object can be held in the double linked list.
 
 The instance variables consist of:
 - A **nextNode** which is the key component of an iterator, since it is the bare minimum to be able to advance throughout a list.
@@ -104,14 +96,26 @@ The methods include the expected classic methods from the Iterator class, as wel
 - set, takes in a generic type element, e, performs a concurency check, and simply sets the lastReturnedNode using the setElement method.
 - add, takes in a generic type element, e, performs a concurrency check, and handles edge cases of adding at the head, where addToFront is called, the tail, where addToRear is called, and in the middle.
 
-5. Much of the concept design was to emphasize the reduction of code duplication by calling already well working methods, such as add(index, element) since if the index is 0, the head, simply call addToFront.
+5. The final concept to understand is the ListTester.java file, which serves the role as the driver class as well as outputting the possible scenarios when testing the methods mentioned above on a double linked list data structure.
+
+There are many different test scenarios to handle an expected output, such as addToFront(A) would throw no issues on an empty list, but if add(3, X) on a single element list, such as [A] would be expected to propagate and error handling, such as IndexOutOfBounds, since there would be no index 3 on a single element list; that would be inaccessible.
+
+The List Tester also have cases for using the List Iterator, such as starting at a specific index, say 1 on a created double linked list [A, B], and expected next() to be valid and calling set(X) would also be valid, since this would first be allowed to call next() on index 1 and "B" would be set to "X" without any issues.
+An example of an expected invalid outcome would be trying to call next() since this would be accessing null, and the hasNext method would have already returned false; this would be inaccessible.
+
+6. Much of the concept design was to emphasize the reduction of code duplication by calling already well working methods, such as add(index, element) since if the index is 0, the head, simply call addToFront.
 
 Perhaps some of the methods could be improved in areas that I missed opportunities to avoid code duplication, such as the index checks. Those could be their own separate method.
 
-I believe that using a double linked list is a great alternative to a single linked list because of the ability to move backwards and there is no burden when shifting like with an array list. However, it does come at a cost of more memory usage, since more variables must be tracked.
+I believe that using a double linked list is a great alternative to a single linked list because of the ability to move backwards. This helped me understand the penalty if using removeLast on a single linked list, since this requires a shift and copy because there is no fast way to unlink the tail, whereas in a double linked list, the tail can simply call getPreviousNode and the old tail will be unlinked from the list, allowing the java garbage collector to collect the old tail; this results in an O(1) runtime operation as opposed to in a single linked list runtime of O(n).
+
+There is also not as much of a burden when shifting like with an array list. An example of such a burden would be removeFirst on an array list, since the entire array would need to be copied, whereas in a double linked list there is already a position for head, which removeFirst() would simply call getNextNode to unlink the old head's position, and let the java garbage collector reclaim the old head's memory; this goes from an original O(n) operation in an array list to a O(1) operation in a double linked list.
+
+However, the double linked list does come at a cost of more memory usage, since more variables must be tracked.
 
 # TESTING:
 As a part of this program, and the concept of learning test driven development, I utilized a List Tester which outlines several scenarios while creating and modifying a double linked list.
+As mentioned in part 5 of the concepts, some examples of these test scenarios would ensure that in fact, an empty list can be created and calling add(A) would throw no errors.
 
 In addition, nearly every single method that could have bad input for their parameters can react by throwing an appropriate exception, such as an IndexOutOfBounds error.
 
